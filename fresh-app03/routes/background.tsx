@@ -10,7 +10,7 @@ export default function Game() {
   return (
     <>
       <Head>
-        <title>Game Page</title>
+        <title>Background</title>
       </Head>
       <Header productHidden={productHidden} sidebarHidden={sidebarHidden} />
       <Background />

@@ -142,9 +142,10 @@ export function Header(props: HeaderProps) {
             </div>
           </div>
 
-          <a href="#" class="text-sm font-semibold leading-6 text-gray-900">Features</a>
-          <a href="#" class="text-sm font-semibold leading-6 text-gray-900">Marketplace</a>
-          <a href="#" class="text-sm font-semibold leading-6 text-gray-900">Company</a>
+          <a href="http://localhost:8000" class="text-sm font-semibold leading-6 text-gray-900">Home</a>
+          <a href="http://localhost:8000/game" class="text-sm font-semibold leading-6 text-gray-900">Game</a>
+          <a href="http://localhost:8000/background" class="text-sm font-semibold leading-6 text-gray-900">Background</a>
+          <a href="http://localhost:8000/enemy" class="text-sm font-semibold leading-6 text-gray-900">Enemy</a>
         </div>
         <div class="hidden lg:flex lg:flex-1 lg:justify-end">
           <a href="#" class="text-sm font-semibold leading-6 text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
