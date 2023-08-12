@@ -10,7 +10,7 @@ export default function Game() {
   return (
     <>
       <Head>
-        <title>Game</title>
+        <title>Dog</title>
       </Head>
       <Header productHidden={productHidden} sidebarHidden={sidebarHidden} />
       <Container />

@@ -12,7 +12,6 @@ export function Header(props: HeaderProps) {
 
   function ToggleSidebar() {
     props.sidebarHidden.value = !props.sidebarHidden.value;
-    console.log('hello : ' , Date())
   }
 
   return (
@@ -143,7 +142,7 @@ export function Header(props: HeaderProps) {
           </div>
 
           <a href="http://localhost:8000" class="text-sm font-semibold leading-6 text-gray-900">Home</a>
-          <a href="http://localhost:8000/game" class="text-sm font-semibold leading-6 text-gray-900">Game</a>
+          <a href="http://localhost:8000/dog" class="text-sm font-semibold leading-6 text-gray-900">Dog</a>
           <a href="http://localhost:8000/background" class="text-sm font-semibold leading-6 text-gray-900">Background</a>
           <a href="http://localhost:8000/enemy" class="text-sm font-semibold leading-6 text-gray-900">Enemy</a>
         </div>
@@ -172,19 +171,19 @@ export function Header(props: HeaderProps) {
             <div class="-my-6 divide-y divide-gray-500/10">
               <div class="space-y-2 py-6">
                 <div class="-mx-3">
-                  <button type="button" class="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50" aria-controls="disclosure-1" aria-expanded="false">
+                  <button onClick={ToggleProduct} type="button" class="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50" aria-controls="disclosure-1" aria-expanded="false">
                     Product
                     {/*
                       * Expand/collapse icon, toggle classes based on menu open state.
 
                       * Open: "rotate-180", Closed: ""
                       */}
-                    <svg class="h-5 w-5 flex-none" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <svg class={props.productHidden.value ? "h-5 w-5 flex-none" : "h-5 w-5 flex-none rotate-180"} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                       <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                     </svg>
                   </button>
                   {/* 'Product' sub-menu, show/hide based on menu state. */}
-                  <div class="mt-2 space-y-2" id="disclosure-1">
+                  <div hidden={props.productHidden.value} class="mt-2 space-y-2" id="disclosure-1">
                     <a href="#" class="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold leading-7 text-gray-900 hover:bg-gray-50">Analytics</a>
                     <a href="#" class="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold leading-7 text-gray-900 hover:bg-gray-50">Engagement</a>
                     <a href="#" class="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold leading-7 text-gray-900 hover:bg-gray-50">Security</a>
@@ -195,7 +194,7 @@ export function Header(props: HeaderProps) {
                   </div>
                 </div>
                 <a href="http://localhost:8000" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Home</a>
-                <a href="http://localhost:8000/game" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Game</a>
+                <a href="http://localhost:8000/dog" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Dog</a>
                 <a href="http://localhost:8000/background" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Background</a>
                 <a href="http://localhost:8000/enemy" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Enemy</a>
               </div>
