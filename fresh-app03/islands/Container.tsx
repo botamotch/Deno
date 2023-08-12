@@ -40,7 +40,7 @@ function script() {
     },
     {
       name: "fall",
-      frames: 9,
+      frames: 7,
     },
     {
       name: "run",
@@ -64,7 +64,7 @@ function script() {
     },
     {
       name: "ko",
-      frames: 5,
+      frames: 12,
     },
     {
       name: "gethit",
