@@ -10,17 +10,25 @@ function assertIsDefined<T>(val: T): asserts val is NonNullable<T> {
 
 function script() {
   const canvas = document.getElementById("canvas1") as HTMLCanvasElement;
+  const canvasPosision = canvas.getBoundingClientRect();
   const ctx = canvas.getContext("2d");
   assertIsDefined(ctx);
+  const collisionCanvas = document.getElementById(
+    "collisionCanvas",
+  ) as HTMLCanvasElement;
+  const collisionCtx = collisionCanvas.getContext("2d");
+  assertIsDefined(collisionCtx);
 
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
+  collisionCanvas.width = window.innerWidth;
+  collisionCanvas.height = window.innerHeight;
 
   let timeToNextRaven = 0;
   const ravenInterval = 500;
   let lastTime = Date.now();
   let score = 0;
-  ctx.font = "50px Impact";
+  ctx.font = "50px sans-serif";
 
   let ravens: Raven[] = [];
 
@@ -40,6 +48,8 @@ function script() {
     maxFrame: number;
     timeSinceFlap: number;
     flapInterval: number;
+    randomColors: number[];
+    color: string;
     constructor() {
       this.spriteWidth = 1626 / 6;
       this.spriteHeight = 194;
@@ -48,7 +58,7 @@ function script() {
       this.height = this.spriteHeight * this.sizeModifier;
       this.x = canvas.width;
       this.y = Math.random() * (canvas.height - this.height);
-      this.directionX = Math.random() * 5 + 3;
+      this.directionX = Math.random() * 3 + 1;
       this.directionY = Math.random() * 5 - 2.5;
       this.markedForDeletion = false;
       this.image = new Image();
@@ -57,6 +67,13 @@ function script() {
       this.maxFrame = 4;
       this.timeSinceFlap = 0;
       this.flapInterval = 50;
+      this.randomColors = [
+        Math.floor(Math.random() * 255),
+        Math.floor(Math.random() * 255),
+        Math.floor(Math.random() * 255),
+      ];
+      this.color = "rgb(" + this.randomColors[0] + "," + this.randomColors[1] +
+        "," + this.randomColors[2] + ")";
     }
 
     update(deltaTime: number) {
@@ -80,6 +97,9 @@ function script() {
     }
     draw() {
       assertIsDefined(ctx);
+      assertIsDefined(collisionCtx);
+      collisionCtx.fillStyle = this.color;
+      collisionCtx.fillRect(this.x, this.y, this.width, this.height);
       ctx.drawImage(
         this.image,
         this.spriteWidth * this.frame,
@@ -102,9 +122,33 @@ function script() {
     ctx.fillText("Score : " + score, 55, 80);
   }
 
+  self.window.addEventListener("click", function (e) {
+    const positionX = e.x - canvasPosision.left;
+    const positionY = e.y - canvasPosision.top;
+    const detectPixelColor = collisionCtx.getImageData(
+      positionX,
+      positionY,
+      1,
+      1,
+    );
+    const pc = detectPixelColor.data;
+    console.log(pc);
+    ravens.forEach((object) => {
+      if (
+        object.randomColors[0] === pc[0] && object.randomColors[1] === pc[1] &&
+        object.randomColors[2] === pc[2]
+      ) {
+        object.markedForDeletion = true;
+        score++;
+      }
+    });
+  });
+
   function animate() {
     assertIsDefined(ctx);
+    assertIsDefined(collisionCtx);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    collisionCtx.clearRect(0, 0, canvas.width, canvas.height);
     const timestamp = Date.now();
     const deltaTime = timestamp - lastTime;
     lastTime = timestamp;
@@ -112,9 +156,14 @@ function script() {
     if (timeToNextRaven > ravenInterval) {
       ravens.push(new Raven());
       timeToNextRaven = 0;
+      ravens.sort(function (a, b) {
+        return a.width - b.width;
+      });
     }
     drawScore();
-    [...ravens].forEach((object) => object.update(deltaTime));
+    if (ravens.length < 20) {
+      [...ravens].forEach((object) => object.update(deltaTime));
+    }
     [...ravens].forEach((object) => object.draw());
     ravens = ravens.filter((object) => !object.markedForDeletion);
     // console.log(ravens);
@@ -130,11 +179,15 @@ export function Shoot() {
   }, []);
 
   return (
-    <div class="py-10 px-0 max-w-fit">
+    <div class="py-0 px-5 mx-auto max-w-fit lg:max-w-3xl">
       <div class="flex justify-center">
         <canvas
+          id="collisionCanvas"
+          class="absolute w-full h-[800px]"
+        />
+        <canvas
           id="canvas1"
-          class="bg-blue-300 max-w-fit h-[800px]"
+          class="absolute opacit-0 w-full h-[800px]"
         />
       </div>
     </div>
