@@ -7,16 +7,18 @@ import * as $1 from "./routes/_app.tsx";
 import * as $2 from "./routes/about.tsx";
 import * as $3 from "./routes/api/joke.ts";
 import * as $4 from "./routes/background.tsx";
-import * as $5 from "./routes/dog.tsx";
-import * as $6 from "./routes/enemy.tsx";
-import * as $7 from "./routes/greet/[name].tsx";
-import * as $8 from "./routes/index.tsx";
+import * as $5 from "./routes/collision.tsx";
+import * as $6 from "./routes/dog.tsx";
+import * as $7 from "./routes/enemy.tsx";
+import * as $8 from "./routes/greet/[name].tsx";
+import * as $9 from "./routes/index.tsx";
 import * as $$0 from "./islands/Background.tsx";
 import * as $$1 from "./islands/BlogSection.tsx";
-import * as $$2 from "./islands/Container.tsx";
-import * as $$3 from "./islands/Counter.tsx";
-import * as $$4 from "./islands/Enemy.tsx";
-import * as $$5 from "./islands/Header.tsx";
+import * as $$2 from "./islands/Collision.tsx";
+import * as $$3 from "./islands/Container.tsx";
+import * as $$4 from "./islands/Counter.tsx";
+import * as $$5 from "./islands/Enemy.tsx";
+import * as $$6 from "./islands/Header.tsx";
 
 const manifest = {
   routes: {
@@ -25,18 +27,20 @@ const manifest = {
     "./routes/about.tsx": $2,
     "./routes/api/joke.ts": $3,
     "./routes/background.tsx": $4,
-    "./routes/dog.tsx": $5,
-    "./routes/enemy.tsx": $6,
-    "./routes/greet/[name].tsx": $7,
-    "./routes/index.tsx": $8,
+    "./routes/collision.tsx": $5,
+    "./routes/dog.tsx": $6,
+    "./routes/enemy.tsx": $7,
+    "./routes/greet/[name].tsx": $8,
+    "./routes/index.tsx": $9,
   },
   islands: {
     "./islands/Background.tsx": $$0,
     "./islands/BlogSection.tsx": $$1,
-    "./islands/Container.tsx": $$2,
-    "./islands/Counter.tsx": $$3,
-    "./islands/Enemy.tsx": $$4,
-    "./islands/Header.tsx": $$5,
+    "./islands/Collision.tsx": $$2,
+    "./islands/Container.tsx": $$3,
+    "./islands/Counter.tsx": $$4,
+    "./islands/Enemy.tsx": $$5,
+    "./islands/Header.tsx": $$6,
   },
   baseUrl: import.meta.url,
 };
