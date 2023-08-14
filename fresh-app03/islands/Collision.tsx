@@ -47,9 +47,6 @@ function script() {
     }
 
     update() {
-      if (this.frame === 0) {
-        this.sound.play();
-      }
       this.timer++;
       if (this.timer % 10 === 0) {
         this.frame++;
@@ -83,13 +80,19 @@ function script() {
   function createAnimation(e: MouseEvent) {
     const positionX = e.x - canvasPosision.left;
     const positionY = e.y - canvasPosision.top;
-    explosions.push(new Explosion(positionX, positionY));
+    if (
+      0 < positionX && positionX < canvas.width && 0 < positionY &&
+      positionY < canvas.height
+    ) {
+      explosions.push(new Explosion(positionX, positionY));
+      explosions[explosions.length - 1].sound.play();
+    }
   }
 
   function animate() {
     assertIsDefined(ctx);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let i = 0; i < explosions.length; i++){
+    for (let i = 0; i < explosions.length; i++) {
       explosions[i].update();
       explosions[i].draw();
       if (explosions[i].frame > 5) {
