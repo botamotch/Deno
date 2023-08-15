@@ -13,6 +13,7 @@ import * as $7 from "./routes/enemy.tsx";
 import * as $8 from "./routes/greet/[name].tsx";
 import * as $9 from "./routes/index.tsx";
 import * as $10 from "./routes/shoot.tsx";
+import * as $11 from "./routes/subclass.tsx";
 import * as $$0 from "./islands/Background.tsx";
 import * as $$1 from "./islands/BlogSection.tsx";
 import * as $$2 from "./islands/Collision.tsx";
@@ -21,6 +22,7 @@ import * as $$4 from "./islands/Counter.tsx";
 import * as $$5 from "./islands/Enemy.tsx";
 import * as $$6 from "./islands/Header.tsx";
 import * as $$7 from "./islands/Shoot.tsx";
+import * as $$8 from "./islands/Subclass.tsx";
 
 const manifest = {
   routes: {
@@ -35,6 +37,7 @@ const manifest = {
     "./routes/greet/[name].tsx": $8,
     "./routes/index.tsx": $9,
     "./routes/shoot.tsx": $10,
+    "./routes/subclass.tsx": $11,
   },
   islands: {
     "./islands/Background.tsx": $$0,
@@ -45,6 +48,7 @@ const manifest = {
     "./islands/Enemy.tsx": $$5,
     "./islands/Header.tsx": $$6,
     "./islands/Shoot.tsx": $$7,
+    "./islands/Subclass.tsx": $$8,
   },
   baseUrl: import.meta.url,
 };

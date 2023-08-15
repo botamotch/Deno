@@ -123,6 +123,20 @@ export function Header(props: HeaderProps) {
                     <p class="mt-1 text-gray-600">Build strategic funnels that will convert</p>
                   </div>
                 </div>
+                <div class="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm leading-6 hover:bg-gray-50">
+                  <div class="flex h-11 w-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
+                    <svg class="h-6 w-6 text-gray-600 group-hover:text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                  </div>
+                  <div class="flex-auto">
+                    <a href="/subclass" class="block font-semibold text-gray-900">
+                      Subclass
+                      <span class="absolute inset-0"></span>
+                    </a>
+                    <p class="mt-1 text-gray-600">Enemy types with JavaScript sub classing</p>
+                  </div>
+                </div>
               </div>
               <div class="grid grid-cols-2 divide-x divide-gray-900/5 bg-gray-50">
                 <a href="#" class="flex items-center justify-center gap-x-2.5 p-3 text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-100">
@@ -141,12 +155,12 @@ export function Header(props: HeaderProps) {
             </div>
           </div>
 
-          <a href="http://localhost:8000" class="text-sm font-semibold leading-6 text-gray-900">Home</a>
-          <a href="http://localhost:8000/dog" class="text-sm font-semibold leading-6 text-gray-900">Dog</a>
-          <a href="http://localhost:8000/background" class="text-sm font-semibold leading-6 text-gray-900">Background</a>
-          <a href="http://localhost:8000/enemy" class="text-sm font-semibold leading-6 text-gray-900">Enemy</a>
-          <a href="http://localhost:8000/collision" class="text-sm font-semibold leading-6 text-gray-900">Collision</a>
-          <a href="http://localhost:8000/shoot" class="text-sm font-semibold leading-6 text-gray-900">Shoot</a>
+          <a href="/" class="text-sm font-semibold leading-6 text-gray-900">Home</a>
+          <a href="/dog" class="text-sm font-semibold leading-6 text-gray-900">Dog</a>
+          <a href="/background" class="text-sm font-semibold leading-6 text-gray-900">Background</a>
+          <a href="/enemy" class="text-sm font-semibold leading-6 text-gray-900">Enemy</a>
+          <a href="/collision" class="text-sm font-semibold leading-6 text-gray-900">Collision</a>
+          <a href="/shoot" class="text-sm font-semibold leading-6 text-gray-900">Shoot</a>
         </div>
         <div class="hidden lg:flex lg:flex-1 lg:justify-end">
           <a href="#" class="text-sm font-semibold leading-6 text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
@@ -193,14 +207,15 @@ export function Header(props: HeaderProps) {
                     <a href="#" class="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold leading-7 text-gray-900 hover:bg-gray-50">Automations</a>
                     <a href="#" class="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold leading-7 text-gray-900 hover:bg-gray-50">Watch demo</a>
                     <a href="#" class="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold leading-7 text-gray-900 hover:bg-gray-50">Contact sales</a>
+                    <a href="/subclass" class="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold leading-7 text-gray-900 hover:bg-gray-50">Subclass</a>
                   </div>
                 </div>
-                <a href="http://localhost:8000" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Home</a>
-                <a href="http://localhost:8000/dog" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Dog</a>
-                <a href="http://localhost:8000/background" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Background</a>
-                <a href="http://localhost:8000/enemy" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Enemy</a>
-                <a href="http://localhost:8000/collision" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Collision</a>
-                <a href="http://localhost:8000/shoot" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Shoot</a>
+                <a href="/" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Home</a>
+                <a href="/dog" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Dog</a>
+                <a href="/background" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Background</a>
+                <a href="/enemy" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Enemy</a>
+                <a href="/collision" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Collision</a>
+                <a href="/shoot" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Shoot</a>
               </div>
               <div class="py-6">
                 <a href="#" class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Log in</a>
