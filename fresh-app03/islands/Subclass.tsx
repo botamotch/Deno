@@ -13,6 +13,9 @@ function script() {
     const canvas = document.getElementById("canvas1") as HTMLCanvasElement;
     const ctx = canvas.getContext("2d");
     assertIsDefined(ctx);
+    const worm = document.getElementById("worm") as HTMLImageElement;
+    const ghost = document.getElementById("ghost") as HTMLImageElement;
+    const spider = document.getElementById("spider") as HTMLImageElement;
 
     canvas.width = 500;
     canvas.height = 800;
@@ -24,6 +27,7 @@ function script() {
       height: number;
       enemyInterval: number;
       enemyTimer: number;
+      enemyType: string[];
       constructor(
         ctx: CanvasRenderingContext2D,
         width: number,
@@ -33,9 +37,10 @@ function script() {
         this.width = width;
         this.height = height;
         this.enemies = [];
-        this.enemyInterval = 1000;
+        this.enemyInterval = 500;
         this.enemyTimer = 0;
-        this.#addEnewEnemy();
+        this.enemyType = ["worm", "ghost", "spider"];
+        this.#addNewEnemy();
       }
 
       update(deltaTime: number) {
@@ -43,18 +48,30 @@ function script() {
           !object.markedForDeletion
         );
         if (this.enemyTimer > this.enemyInterval) {
-          this.#addEnewEnemy();
+          this.#addNewEnemy();
           this.enemyTimer = 0;
+          console.log(this.enemies);
         } else {
           this.enemyTimer += deltaTime;
         }
-        this.enemies.forEach((object) => object.update());
+        this.enemies.forEach((object) => object.update(deltaTime));
       }
       draw() {
         this.enemies.forEach((object) => object.draw(this.ctx));
       }
-      #addEnewEnemy() {
-        this.enemies.push(new Enemy(this));
+      #addNewEnemy() {
+        const randomEnemy =
+          this.enemyType[Math.floor(Math.random() * this.enemyType.length)];
+        if (randomEnemy == "worm") {
+          this.enemies.push(new Worm(this));
+        } else if (randomEnemy == "ghost") {
+          this.enemies.push(new Ghost(this));
+        } else if (randomEnemy == "spider") {
+          this.enemies.push(new Spider(this));
+        }
+        this.enemies.sort(function (a, b) {
+          return a.y - b.y;
+        });
       }
     }
 
@@ -63,28 +80,114 @@ function script() {
       y: number;
       width: number;
       height: number;
+      spriteWidth: number;
+      spriteHeight: number;
+      vx: number;
+      vy: number;
       game: Game;
       markedForDeletion: boolean;
+      image: HTMLImageElement;
       constructor(game: Game) {
         this.game = game;
         this.x = this.game.width;
         this.y = Math.random() * this.game.height;
         this.width = 100;
         this.height = 100;
+        this.spriteWidth = 0;
+        this.spriteHeight = 0;
         this.markedForDeletion = false;
+        this.image = new Image();
+        this.vx = Math.random() * 0.1 + 0.1;
+        this.vy = 0;
       }
-      update() {
-        this.x--;
+      update(deltaTime: number) {
+        this.x -= this.vx * deltaTime;
         if (this.x < 0 - this.width) {
           this.markedForDeletion = true;
         }
       }
       draw(ctx: CanvasRenderingContext2D) {
         assertIsDefined(ctx);
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        // ctx.fillRect(this.x, this.y, this.width, this.height);
+        // ctx.strokeRect(this.x, this.y, this.width, this.height);
+        ctx.drawImage(
+          this.image,
+          0,
+          0,
+          this.spriteWidth,
+          this.spriteHeight,
+          this.x,
+          this.y,
+          this.width,
+          this.height,
+        );
       }
     }
 
+    class Worm extends Enemy {
+      constructor(game: Game) {
+        super(game);
+        this.x = this.game.width;
+        this.y = this.game.height - this.height;
+        this.spriteWidth = 1374 / 6;
+        this.spriteHeight = 171;
+        this.width = this.spriteWidth * 0.5;
+        this.height = this.spriteHeight * 0.5;
+        this.image = worm;
+        this.vx = Math.random() * 0.1 + 0.1;
+      }
+    }
+
+    class Ghost extends Enemy {
+      angle: number;
+      curve: number;
+      constructor(game: Game) {
+        super(game);
+        this.x = this.game.width;
+        this.y = this.game.height * Math.random() * 0.6;
+        this.spriteWidth = 1566 / 6;
+        this.spriteHeight = 209;
+        this.width = this.spriteWidth * 0.5;
+        this.height = this.spriteHeight * 0.5;
+        this.image = ghost;
+        this.vx = Math.random() * 0.2 + 0.1;
+        this.angle = Math.random() * Math.PI;
+        this.curve = Math.random() * 1 + 2;
+      }
+      update(deltaTime: number) {
+        super.update(deltaTime);
+        this.y += Math.sin(this.angle) * this.curve;
+        this.angle += 0.04;
+      }
+      draw() {
+        this.game.ctx.save();
+        this.game.ctx.globalAlpha = 0.5;
+        super.draw(this.game.ctx);
+        this.game.ctx.restore();
+      }
+    }
+
+    class Spider extends Enemy {
+      maxLength: number;
+      constructor(game: Game) {
+        super(game);
+        this.x = Math.random() * this.game.width;
+        this.y = 0 - this.height;
+        this.spriteWidth = 1860 / 6;
+        this.spriteHeight = 175;
+        this.width = this.spriteWidth * 0.5;
+        this.height = this.spriteHeight * 0.5;
+        this.image = spider;
+        this.vx = 0;
+        this.vy = Math.random() * 0.1 + 0.1;
+        this.maxLength = Math.random() * this.game.height;
+      }
+      update(deltaTime: number) {
+        super.update(deltaTime);
+        this.y += this.vy * deltaTime;
+        if (this.y > this.maxLength) this.vy *= -1
+      }
+    }
     const game = new Game(ctx, canvas.width, canvas.height);
 
     let lastTime = Date.now();
