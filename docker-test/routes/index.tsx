@@ -1,6 +1,7 @@
 import { Head } from "$fresh/runtime.ts";
 import { useSignal } from "@preact/signals";
 import Counter from "../islands/Counter.tsx";
+import Header from "../islands/Header.tsx";
 
 export default function Home() {
   const count = useSignal(3);
@@ -9,6 +10,7 @@ export default function Home() {
       <Head>
         <title>docker-test</title>
       </Head>
+      <Header />
       <div class="px-4 py-8 mx-auto bg-[#86efac]">
         <div class="max-w-screen-md mx-auto flex flex-col items-center justify-center">
           <img
