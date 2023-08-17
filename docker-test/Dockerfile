@@ -1,7 +1,7 @@
 FROM ubuntu:22.04
 
 WORKDIR /var/deno
-COPY . /var/deno
+# COPY . /var/deno
 
 RUN apt-get -y update
 RUN apt-get -y upgrade
