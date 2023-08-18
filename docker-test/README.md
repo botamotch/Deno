@@ -16,7 +16,26 @@ deno task start
 This will watch the project directory and restart as necessary.
 
 # Docker
-### Build and Run
+### Build
+```Dockerfile
+FROM ubuntu:22.04
+
+WORKDIR /var/deno
+COPY . /var/deno
+
+RUN apt-get -y update
+RUN apt-get -y upgrade
+RUN apt-get -y install curl unzip
+RUN curl -fsSL https://deno.land/x/install/install.sh | sh
+
+ENV DENO_INSTALL "/root/.deno"
+ENV PATH $DENO_INSTALL/bin:$PATH
+
+EXPOSE 8000
+
+CMD ["deno", "task", "start"]
+```
+
 ```
 $ docker pull ubuntu:20.04
 20.04: Pulling from library/ubuntu
@@ -36,13 +55,16 @@ fresh-test   latest    c70d75f763d6   About a minute ago   246MB
 ubuntu       22.04     01f29b872827   13 days ago          77.8MB
 ubuntu       20.04     6df894023726   2 weeks ago          72.8MB
 
-$ docker run -p 8000:8000 --name fresh-test -it fresh-test
 ```
 
+### Run
+
 ```
+$ docker run -p 8000:8000 --name fresh-test -it fresh-test
+
 $ docker ps -a
-CONTAINER ID   IMAGE        COMMAND             CREATED              STATUS                      PORTS                                       NAMES
-22a739a07a52   fresh-test   "deno task start"   44 seconds ago       Up 43 seconds               0.0.0.0:8000->8000/tcp, :::8000->8000/tcp   inspiring_swanson
+CONTAINER ID  IMAGE       COMMAND            CREATED         STATUS         PORTS                                      NAMES
+22a739a07a52  fresh-test  "deno task start"  44 seconds ago  Up 43 seconds  0.0.0.0:8000->8000/tcp, :::8000->8000/tcp  inspiring_swanson
 ```
 
 ### Remove Container and Images
