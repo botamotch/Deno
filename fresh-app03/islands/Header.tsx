@@ -1,18 +1,33 @@
-import { Signal } from "@preact/signals";
+import { useSignal } from "@preact/signals";
 
 interface HeaderProps {
-  productHidden: Signal<boolean>;
-  sidebarHidden: Signal<boolean>;
+  page: string;
 }
 
 export function Header(props: HeaderProps) {
+  const productHidden = useSignal(true);
+  const sidebarHidden = useSignal(true);
+
   function ToggleProduct() {
-    props.productHidden.value = !props.productHidden.value;
+    productHidden.value = !productHidden.value;
   }
 
   function ToggleSidebar() {
-    props.sidebarHidden.value = !props.sidebarHidden.value;
+    sidebarHidden.value = !sidebarHidden.value;
   }
+
+  const pages = [
+    { name: "Home", href: "/", current: false },
+    { name: "Dog", href: "/dog", current: false },
+    { name: "Background", href: "/background", current: false },
+    { name: "Enemy", href: "/enemy", current: false },
+    { name: "Collision", href: "/collision", current: false },
+    { name: "Shoot", href: "/shoot", current: false },
+  ]
+
+  pages.forEach((page, i) => {
+    if (page.name == props.page) pages[i].current = true
+  })
 
   return (
     <header class="bg-white">
@@ -50,7 +65,7 @@ export function Header(props: HeaderProps) {
               *   From: "opacity-100 translate-y-0"
               *   To: "opacity-0 translate-y-1"
               */}
-            <div hidden={props.productHidden.value} class="absolute -left-8 top-full z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5">
+            <div hidden={productHidden.value} class="absolute -left-8 top-full z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5">
               <div class="p-4">
                 <div class="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm leading-6 hover:bg-gray-50">
                   <div class="flex h-11 w-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
@@ -155,19 +170,16 @@ export function Header(props: HeaderProps) {
             </div>
           </div>
 
-          <a href="/" class="text-sm font-semibold leading-6 text-gray-900">Home</a>
-          <a href="/dog" class="text-sm font-semibold leading-6 text-gray-900">Dog</a>
-          <a href="/background" class="text-sm font-semibold leading-6 text-gray-900">Background</a>
-          <a href="/enemy" class="text-sm font-semibold leading-6 text-gray-900">Enemy</a>
-          <a href="/collision" class="text-sm font-semibold leading-6 text-gray-900">Collision</a>
-          <a href="/shoot" class="text-sm font-semibold leading-6 text-gray-900">Shoot</a>
+          {pages.map((p) => (
+            <a href={p.href} class={"text-sm leading-6 " + (p.current ? "text-gray-900 font-semibold" : "text-gray-500")}>{p.name}</a>
+          ))}
         </div>
         <div class="hidden lg:flex lg:flex-1 lg:justify-end">
           <a href="#" class="text-sm font-semibold leading-6 text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
         </div>
       </nav>
       {/* Mobile menu, show/hide based on menu open state. */} 
-      <div hidden={props.sidebarHidden.value} class="lg:hidden" role="dialog" aria-modal="true">
+      <div hidden={sidebarHidden.value} class="lg:hidden" role="dialog" aria-modal="true">
         {/* Background backdrop, show/hide based on slide-over state. */} 
         <div class="fixed inset-0 z-10"></div>
         <div class="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
@@ -194,12 +206,12 @@ export function Header(props: HeaderProps) {
 
                       * Open: "rotate-180", Closed: ""
                       */}
-                    <svg class={props.productHidden.value ? "h-5 w-5 flex-none" : "h-5 w-5 flex-none rotate-180"} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <svg class={productHidden.value ? "h-5 w-5 flex-none" : "h-5 w-5 flex-none rotate-180"} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                       <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                     </svg>
                   </button>
                   {/* 'Product' sub-menu, show/hide based on menu state. */}
-                  <div hidden={props.productHidden.value} class="mt-2 space-y-2" id="disclosure-1">
+                  <div hidden={productHidden.value} class="mt-2 space-y-2" id="disclosure-1">
                     <a href="#" class="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold leading-7 text-gray-900 hover:bg-gray-50">Analytics</a>
                     <a href="#" class="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold leading-7 text-gray-900 hover:bg-gray-50">Engagement</a>
                     <a href="#" class="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold leading-7 text-gray-900 hover:bg-gray-50">Security</a>
@@ -210,12 +222,9 @@ export function Header(props: HeaderProps) {
                     <a href="/subclass" class="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold leading-7 text-gray-900 hover:bg-gray-50">Subclass</a>
                   </div>
                 </div>
-                <a href="/" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Home</a>
-                <a href="/dog" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Dog</a>
-                <a href="/background" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Background</a>
-                <a href="/enemy" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Enemy</a>
-                <a href="/collision" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Collision</a>
-                <a href="/shoot" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Shoot</a>
+                {pages.map((p) => (
+                  <a href={p.href} class={"-mx-3 block rounded-lg px-3 py-2 text-base leading-7 hover:bg-gray-50 " + (p.current ? "text-gray-900 font-semibold" : "text-gray-500")}>{p.name}</a>
+                ))}
               </div>
               <div class="py-6">
                 <a href="#" class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Log in</a>

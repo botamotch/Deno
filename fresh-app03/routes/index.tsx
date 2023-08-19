@@ -1,20 +1,17 @@
 import { Head } from "$fresh/runtime.ts";
 import { useSignal } from "@preact/signals";
-import { signal } from "@preact/signals";
 import { Header } from "../islands/Header.tsx";
 import Counter from "../islands/Counter.tsx";
 
 export default function Home() {
   const count = useSignal(3);
-  const productHidden = signal(true);
-  const sidebarHidden = signal(true);
 
   return (
     <>
       <Head>
         <title>fresh-app03 Home</title>
       </Head>
-      <Header productHidden={productHidden} sidebarHidden={sidebarHidden} />
+      <Header page="Home" />
       <div class="px-4 py-8 mx-auto bg-[#86efac]">
         <div class="max-w-screen-md mx-auto flex flex-col items-center justify-center">
           <img
