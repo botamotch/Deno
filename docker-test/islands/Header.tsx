@@ -1,6 +1,20 @@
 import { useSignal } from "@preact/signals";
 
-export default function Header() {
+interface HeaderProp {
+  page: string;
+}
+
+export default function Header(prop: HeaderProp) {
+  const pages = [
+    { name: "Home", href: "/", current: false },
+    { name: "Blog Section", href: "/blog", current: false },
+    { name: "Dashboard", href: "/dashboard", current: false },
+  ]
+
+  pages.forEach((page, i) => {
+    if (page.name == prop.page) pages[i].current = true;
+  })
+
   const productHidden = useSignal(true);
   const sidebarHidden = useSignal(true);
 
@@ -16,7 +30,7 @@ export default function Header() {
       <header class="bg-white">
         <nav class="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
           <div class="flex lg:flex-1">
-            <a href="#" class="-m-1.5 p-1.5">
+            <a href="/" class="-m-1.5 p-1.5">
               <span class="sr-only">Your Company</span>
               <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt=""/>
             </a>
@@ -139,9 +153,11 @@ export default function Header() {
               </div>
             </div>
 
-            <a href="/dashboard" class="text-sm font-semibold leading-6 text-gray-900">Dashboard</a>
-            <a href="#" class="text-sm font-semibold leading-6 text-gray-300">Marketplace</a>
-            <a href="#" class="text-sm font-semibold leading-6 text-gray-300">Company</a>
+            {pages.map(page => (
+              <a href={page.href} class={"text-sm leading-6 " + (page.current ? "text-gray-900 font-semibold" : "text-gray-500 font-normal")}>
+                {page.name}
+              </a>
+            ))}
           </div>
           <div class="hidden lg:flex lg:flex-1 lg:justify-end">
             <a href="#" class="text-sm font-semibold leading-6 text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
