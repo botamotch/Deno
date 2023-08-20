@@ -87,6 +87,10 @@ function script() {
       game: Game;
       markedForDeletion: boolean;
       image: HTMLImageElement;
+      frameX: number;
+      maxFrame: number;
+      frameInterval: number;
+      frameTimer: number;
       constructor(game: Game) {
         this.game = game;
         this.x = this.game.width;
@@ -99,20 +103,29 @@ function script() {
         this.image = new Image();
         this.vx = Math.random() * 0.1 + 0.1;
         this.vy = 0;
+        this.frameX = 0;
+        this.maxFrame = 5;
+        this.frameInterval = 100;
+        this.frameTimer = 0;
       }
       update(deltaTime: number) {
         this.x -= this.vx * deltaTime;
         if (this.x < 0 - this.width) {
           this.markedForDeletion = true;
         }
+        if (this.frameTimer > this.frameInterval) {
+          if(this.frameX < this.maxFrame) this.frameX++;
+          else this.frameX = 0;
+          this.frameTimer = 0;
+        } else {
+          this.frameTimer += deltaTime;
+        }
       }
       draw(ctx: CanvasRenderingContext2D) {
         assertIsDefined(ctx);
-        // ctx.fillRect(this.x, this.y, this.width, this.height);
-        // ctx.strokeRect(this.x, this.y, this.width, this.height);
         ctx.drawImage(
           this.image,
-          0,
+          this.frameX * this.spriteWidth,
           0,
           this.spriteWidth,
           this.spriteHeight,
@@ -187,6 +200,16 @@ function script() {
         this.y += this.vy * deltaTime;
         if (this.y > this.maxLength) this.vy *= -1
       }
+
+      draw(ctx: CanvasRenderingContext2D) {
+        ctx.beginPath();
+        ctx.moveTo(this.x + this.width * 0.5, 0);
+        ctx.lineTo(this.x + this.width * 0.5, this.y + 10);
+        ctx.stroke();
+        super.draw(ctx);
+      }
+
+
     }
     const game = new Game(ctx, canvas.width, canvas.height);
 
