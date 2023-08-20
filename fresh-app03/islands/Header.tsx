@@ -23,6 +23,7 @@ export function Header(props: HeaderProps) {
     { name: "Enemy", href: "/enemy", current: false },
     { name: "Collision", href: "/collision", current: false },
     { name: "Shoot", href: "/shoot", current: false },
+    { name: "Side Scroll", href: "/scroll", current: false },
   ]
 
   pages.forEach((page, i) => {
