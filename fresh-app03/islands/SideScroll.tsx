@@ -13,9 +13,12 @@ function script() {
     const canvas = document.getElementById("canvas1") as HTMLCanvasElement;
     const ctx = canvas.getContext("2d");
     assertIsDefined(ctx);
+    let score = 0;
+    let gameOver = false;
 
     canvas.width = 800;
     canvas.height = 720;
+    let enemies: Enemy[] = [];
 
     class InputHandler {
       keys: string[];
@@ -53,6 +56,10 @@ function script() {
       image: HTMLImageElement;
       frameX: number;
       frameY: number;
+      maxFrame: number;
+      fps: number;
+      frameTimer: number;
+      frameInterval: number;
       weight: number;
       constructor(gameWidth: number, gameHeight: number) {
         this.gameWidth = gameWidth;
@@ -65,12 +72,14 @@ function script() {
         this.vy = 0;
         this.frameX = 0;
         this.frameY = 0;
+        this.maxFrame = 8;
+        this.fps = 20;
+        this.frameTimer = 0;
+        this.frameInterval = 1000 / this.fps;
         this.weight = 1;
         this.image = document.getElementById("playerImage") as HTMLImageElement;
       }
       draw(ctx: CanvasRenderingContext2D) {
-        ctx.fillStyle = "white";
-        ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.drawImage(
           this.image,
           this.frameX * this.width,
@@ -83,7 +92,24 @@ function script() {
           this.height,
         );
       }
-      update(input: InputHandler) {
+      update(input: InputHandler, deltaTime: number, enemies: Enemy[]) {
+        // coollision detection
+        enemies.forEach((enemy) => {
+          const dx = (enemy.x + enemy.width * 0.5) - (this.x + this.width * 0.5)
+          const dy = (enemy.y + enemy.height * 0.5) - (this.y + this.height * 0.5)
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          if (distance < enemy.width * 0.5 + enemy.height * 0.5) {
+            gameOver = true;
+          }
+        })
+        // sprite animation
+        if (this.frameTimer > this.frameInterval) {
+          if (this.frameX >= this.maxFrame) this.frameX = 0;
+          else this.frameX++;
+          this.frameTimer = 0;
+        } else {
+          this.frameTimer += deltaTime;
+        }
         if (input.keys.indexOf("ArrowRight") > -1) {
           this.vx = 5;
         } else if (input.keys.indexOf("ArrowLeft") > -1) {
@@ -92,7 +118,7 @@ function script() {
           this.vx = 0;
         }
         if (input.keys.indexOf("ArrowUp") > -1 && this.onGround()) {
-          this.vy = -30;
+          this.vy = -25;
         }
         // horizontol movement
         this.x += this.vx;
@@ -105,9 +131,11 @@ function script() {
         if (!this.onGround()) {
           this.vy += this.weight;
           this.frameY = 1;
+          this.maxFrame = 5;
         } else {
           this.vy = 0;
           this.frameY = 0;
+          this.maxFrame = 8;
         }
       }
 
@@ -132,42 +160,140 @@ function script() {
         this.y = 0;
         this.width = 2400;
         this.height = 720;
-        this.speed = 10;
+        this.speed = 5;
         this.image = document.getElementById(
           "backgroundImage",
         ) as HTMLImageElement;
       }
       draw(ctx: CanvasRenderingContext2D) {
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-        ctx.drawImage(this.image, this.x + this.width - this.speed, this.y, this.width, this.height);
+        ctx.drawImage(
+          this.image,
+          this.x + this.width - this.speed,
+          this.y,
+          this.width,
+          this.height,
+        );
       }
-      update(){
+      update() {
         this.x -= this.speed;
         if (this.x < 0 - this.width) this.x = 0;
-
       }
     }
 
-    class Enemy {}
-
-    function handleEnemies() {
+    class Enemy {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      gameWidth: number;
+      gameHeight: number;
+      image: HTMLImageElement;
+      frameX: number;
+      maxFrame: number;
+      fps: number;
+      frameTimer: number;
+      frameInterval: number;
+      speed: number;
+      markedForDeletion: boolean;
+      constructor(gameWidth: number, gameHeight: number) {
+        this.gameWidth = gameWidth;
+        this.gameHeight = gameHeight;
+        this.width = 160;
+        this.height = 119;
+        this.x = this.gameWidth;
+        this.y = this.gameHeight - this.height;
+        this.image = document.getElementById("enemyImage") as HTMLImageElement;
+        this.frameX = 0;
+        this.maxFrame = 5;
+        this.fps = 20;
+        this.frameTimer = 0;
+        this.frameInterval = 1000 / this.fps;
+        this.speed = 8;
+        this.markedForDeletion = false;
+      }
+      draw(ctx: CanvasRenderingContext2D) {
+        ctx.drawImage(
+          this.image,
+          this.frameX * this.width,
+          0,
+          this.width,
+          this.height,
+          this.x,
+          this.y,
+          this.width,
+          this.height,
+        );
+      }
+      update(deltaTime: number) {
+        if (this.frameTimer > this.frameInterval) {
+          if (this.frameX >= this.maxFrame) this.frameX = 0;
+          else this.frameX++;
+          this.frameTimer = 0;
+        } else {
+          this.frameTimer += deltaTime;
+        }
+        this.x -= this.speed;
+        if (this.x < 0 - this.width) {
+          this.markedForDeletion = true;
+          score++;
+        }
+      }
     }
 
-    function displayStatusText() {
+    function handleEnemies(deltaTime: number) {
+      if (enemyTimer > enemyInterval) {
+        enemies.push(new Enemy(canvas.width, canvas.height));
+        enemyInterval = Math.random() * 500 + 750;
+        enemyTimer = 0;
+      } else {
+        enemyTimer += deltaTime;
+      }
+      assertIsDefined(ctx);
+      enemies.forEach((enemy) => {
+        enemy.draw(ctx);
+        enemy.update(deltaTime);
+      });
+      enemies = enemies.filter((enemy) => !enemy.markedForDeletion);
+    }
+
+    function displayStatusText(ctx: CanvasRenderingContext2D) {
+      assertIsDefined(ctx);
+      ctx.font = "40px Helvetica";
+      ctx.fillStyle = "black";
+      ctx.fillText("Score: " + score, 20, 50);
+      ctx.fillStyle = "white";
+      ctx.fillText("Score: " + score, 23, 53);
+      if (gameOver) {
+        ctx.textAlign = "center";
+        ctx.fillStyle = "black";
+        ctx.fillText("GAME OVER, try again!", canvas.width * 0.5, canvas.height * 0.2);
+        ctx.fillStyle = "white";
+        ctx.fillText("GAME OVER, try again!", canvas.width * 0.5 + 2, canvas.height * 0.2 + 2);
+      }
     }
 
     const input = new InputHandler();
     const player = new Player(canvas.width, canvas.height);
     const background = new Background(canvas.width, canvas.height);
 
+    let lastTime = Date.now();
+    let enemyTimer = 0;
+    let enemyInterval = 1000;
+
     function animate() {
+      const timeStamp = Date.now();
+      const deltaTime = timeStamp - lastTime;
+      lastTime = timeStamp;
       assertIsDefined(ctx);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       background.draw(ctx);
       background.update();
       player.draw(ctx);
-      player.update(input);
-      requestAnimationFrame(animate);
+      player.update(input, deltaTime, enemies);
+      handleEnemies(deltaTime);
+      displayStatusText(ctx);
+      if (!gameOver) requestAnimationFrame(animate);
     }
     animate();
   });
