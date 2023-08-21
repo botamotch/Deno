@@ -16,7 +16,7 @@ function script() {
     let score = 0;
     let gameOver = false;
 
-    canvas.width = 800;
+    canvas.width = 1000;
     canvas.height = 720;
     let enemies: Enemy[] = [];
 
@@ -31,7 +31,7 @@ function script() {
             this.keys.indexOf(e.key) === -1
           ) {
             this.keys.push(e.key);
-          }
+          } else if (e.key === "Enter" && gameOver) restartGame();
         });
         self.window.addEventListener("keyup", (e: KeyboardEvent) => {
           if (
@@ -41,6 +41,15 @@ function script() {
             this.keys.splice(this.keys.indexOf(e.key), 1);
           }
         });
+        self.window.addEventListener("touchstart", (e) => {
+          console.log("start");
+        })
+        self.window.addEventListener("touchmove", (e) => {
+          console.log("move");
+        })
+        self.window.addEventListener("touchend", (e) => {
+          console.log("end");
+        })
       }
     }
 
@@ -111,9 +120,9 @@ function script() {
           this.frameTimer += deltaTime;
         }
         if (input.keys.indexOf("ArrowRight") > -1) {
-          this.vx = 5;
+          this.vx = 8;
         } else if (input.keys.indexOf("ArrowLeft") > -1) {
-          this.vx = -5;
+          this.vx = -8;
         } else {
           this.vx = 0;
         }
@@ -137,6 +146,12 @@ function script() {
           this.frameY = 0;
           this.maxFrame = 8;
         }
+      }
+      restart() {
+        this.x = 100;
+        this.y = this.gameHeight - this.height;
+        this.maxFrame = 8;
+        this.frameY = 0;
       }
 
       onGround() {
@@ -178,6 +193,9 @@ function script() {
       update() {
         this.x -= this.speed;
         if (this.x < 0 - this.width) this.x = 0;
+      }
+      restart() {
+        this.x = 0;
       }
     }
 
@@ -259,6 +277,7 @@ function script() {
 
     function displayStatusText(ctx: CanvasRenderingContext2D) {
       assertIsDefined(ctx);
+      ctx.textAlign = "left";
       ctx.font = "40px Helvetica";
       ctx.fillStyle = "black";
       ctx.fillText("Score: " + score, 20, 50);
@@ -271,6 +290,15 @@ function script() {
         ctx.fillStyle = "white";
         ctx.fillText("GAME OVER, try again!", canvas.width * 0.5 + 2, canvas.height * 0.2 + 2);
       }
+    }
+
+    function restartGame() {
+      player.restart();
+      background.restart();
+      enemies = [];
+      score = 0;
+      gameOver = false;
+      animate();
     }
 
     const input = new InputHandler();
@@ -305,11 +333,11 @@ export function SideScroll() {
   }, []);
 
   return (
-    <div class="py-10 px-5 mx-auto max-w-fit lg:max-w-3xl">
+    <div class="py-0 px-0 mx-auto max-w-full">
       <div class="flex justify-center">
         <canvas
           id="canvas1"
-          class="bg-blue-300 border-4 border-black w-[800px] h-[720px]"
+          class="bg-blue-300 border-4 border-black w-[1000px] h-[720px]"
         />
         <img class="hidden" id="playerImage" src="side-scroll/player.png" />
         <img
