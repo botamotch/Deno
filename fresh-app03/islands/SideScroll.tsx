@@ -16,14 +16,19 @@ function script() {
     let score = 0;
     let gameOver = false;
 
-    canvas.width = 1000;
-    canvas.height = 720;
+    const fullScrrenButton = document.getElementById("fullScrrenButton") as HTMLButtonElement;
+
+    canvas.width = 1200;
+    canvas.height = 700;
     let enemies: Enemy[] = [];
 
     class InputHandler {
       keys: string[];
+      touchY: number;
+      touchThreshold = 30;
       constructor() {
         this.keys = [];
+        this.touchY = -1;
         self.window.addEventListener("keydown", (e: KeyboardEvent) => {
           if (
             (e.key === "ArrowDown" || e.key === "ArrowUp" ||
@@ -42,13 +47,20 @@ function script() {
           }
         });
         self.window.addEventListener("touchstart", (e) => {
-          console.log("start");
+          this.touchY = e.changedTouches[0].pageY;
         })
         self.window.addEventListener("touchmove", (e) => {
-          console.log("move");
+          const swipeDistance = e.changedTouches[0].pageY - this.touchY;
+          if (swipeDistance < -this.touchThreshold && this.keys.indexOf("SwipeUp") === -1) this.keys.push("SwipeUp");
+          else if (swipeDistance > this.touchThreshold && this.keys.indexOf("SwipeDown") === -1) {
+            this.keys.push("SwipeDown");
+            if (gameOver) restartGame();
+          }
         })
         self.window.addEventListener("touchend", (e) => {
-          console.log("end");
+          console.log(this.keys);
+          this.keys.splice(this.keys.indexOf("SwipeUp"), 1);
+          this.keys.splice(this.keys.indexOf("SwipeDown"), 1);
         })
       }
     }
@@ -75,7 +87,7 @@ function script() {
         this.gameHeight = gameHeight;
         this.width = 200;
         this.height = 200;
-        this.x = 0;
+        this.x = 100;
         this.y = this.gameHeight - this.height;
         this.vx = 0;
         this.vy = 0;
@@ -126,8 +138,9 @@ function script() {
         } else {
           this.vx = 0;
         }
-        if (input.keys.indexOf("ArrowUp") > -1 && this.onGround()) {
+        if ((input.keys.indexOf("ArrowUp") > -1 || input.keys.indexOf("SwipeUp") > -1) && this.onGround()) {
           this.vy = -25;
+          this.frameX = 0;
         }
         // horizontol movement
         this.x += this.vx;
@@ -150,6 +163,7 @@ function script() {
       restart() {
         this.x = 100;
         this.y = this.gameHeight - this.height;
+        this.vy = 0;
         this.maxFrame = 8;
         this.frameY = 0;
       }
@@ -262,7 +276,7 @@ function script() {
     function handleEnemies(deltaTime: number) {
       if (enemyTimer > enemyInterval) {
         enemies.push(new Enemy(canvas.width, canvas.height));
-        enemyInterval = Math.random() * 500 + 750;
+        enemyInterval = Math.random() * 500 + 1000;
         enemyTimer = 0;
       } else {
         enemyTimer += deltaTime;
@@ -286,9 +300,9 @@ function script() {
       if (gameOver) {
         ctx.textAlign = "center";
         ctx.fillStyle = "black";
-        ctx.fillText("GAME OVER, try again!", canvas.width * 0.5, canvas.height * 0.2);
+        ctx.fillText("GAME OVER, Press Enter or swipe down to restart!", canvas.width * 0.5, canvas.height * 0.2);
         ctx.fillStyle = "white";
-        ctx.fillText("GAME OVER, try again!", canvas.width * 0.5 + 2, canvas.height * 0.2 + 2);
+        ctx.fillText("GAME OVER, Press Enter or swipe down to restart!", canvas.width * 0.5 + 3, canvas.height * 0.2 + 3);
       }
     }
 
@@ -300,6 +314,18 @@ function script() {
       gameOver = false;
       animate();
     }
+
+    function toggleFullScreen() {
+      console.log(document.fullscreenElement);
+      if(!document.fullscreenElement) {
+        canvas.requestFullscreen().then().catch(err => {
+          alert(`Err, can't enable full-screen mode: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    fullScrrenButton.addEventListener("click", toggleFullScreen);
 
     const input = new InputHandler();
     const player = new Player(canvas.width, canvas.height);
@@ -337,7 +363,7 @@ export function SideScroll() {
       <div class="flex justify-center">
         <canvas
           id="canvas1"
-          class="bg-blue-300 border-4 border-black w-[1000px] h-[720px]"
+          class="bg-blue-300 border-4 border-black w-[1200px] h-[700px]"
         />
         <img class="hidden" id="playerImage" src="side-scroll/player.png" />
         <img
@@ -346,6 +372,7 @@ export function SideScroll() {
           src="side-scroll/background_single.png"
         />
         <img class="hidden" id="enemyImage" src="side-scroll/enemy_1.png" />
+        <button id="fullScrrenButton" class="absolute text-sm m-4 p-2 inline-block rounded-md bg-gray-100">Toggle Fullscreen</button>
       </div>
     </div>
   );
