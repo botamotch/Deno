@@ -14,7 +14,8 @@ import * as $8 from "./routes/greet/[name].tsx";
 import * as $9 from "./routes/index.tsx";
 import * as $10 from "./routes/scroll.tsx";
 import * as $11 from "./routes/shoot.tsx";
-import * as $12 from "./routes/subclass.tsx";
+import * as $12 from "./routes/states/index.tsx";
+import * as $13 from "./routes/subclass.tsx";
 import * as $$0 from "./islands/Background.tsx";
 import * as $$1 from "./islands/BlogSection.tsx";
 import * as $$2 from "./islands/Collision.tsx";
@@ -24,7 +25,12 @@ import * as $$5 from "./islands/Enemy.tsx";
 import * as $$6 from "./islands/Header.tsx";
 import * as $$7 from "./islands/Shoot.tsx";
 import * as $$8 from "./islands/SideScroll.tsx";
-import * as $$9 from "./islands/Subclass.tsx";
+import * as $$9 from "./islands/StateManagement/input.tsx";
+import * as $$10 from "./islands/StateManagement/player.tsx";
+import * as $$11 from "./islands/StateManagement/script.tsx";
+import * as $$12 from "./islands/StateManagement/state.tsx";
+import * as $$13 from "./islands/StateManagement/utils.tsx";
+import * as $$14 from "./islands/Subclass.tsx";
 
 const manifest = {
   routes: {
@@ -40,7 +46,8 @@ const manifest = {
     "./routes/index.tsx": $9,
     "./routes/scroll.tsx": $10,
     "./routes/shoot.tsx": $11,
-    "./routes/subclass.tsx": $12,
+    "./routes/states/index.tsx": $12,
+    "./routes/subclass.tsx": $13,
   },
   islands: {
     "./islands/Background.tsx": $$0,
@@ -52,7 +59,12 @@ const manifest = {
     "./islands/Header.tsx": $$6,
     "./islands/Shoot.tsx": $$7,
     "./islands/SideScroll.tsx": $$8,
-    "./islands/Subclass.tsx": $$9,
+    "./islands/StateManagement/input.tsx": $$9,
+    "./islands/StateManagement/player.tsx": $$10,
+    "./islands/StateManagement/script.tsx": $$11,
+    "./islands/StateManagement/state.tsx": $$12,
+    "./islands/StateManagement/utils.tsx": $$13,
+    "./islands/Subclass.tsx": $$14,
   },
   baseUrl: import.meta.url,
 };
