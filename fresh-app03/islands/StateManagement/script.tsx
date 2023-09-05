@@ -25,9 +25,9 @@ function script() {
     function animate() {
       assertIsDefined(ctx);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      // console.log(input.lastkey);
+      player.update(input.lastkey);
       player.draw(ctx);
-      drawStatesText(ctx, input);
+      drawStatesText(ctx, input, player);
       requestAnimationFrame(animate);
     }
 
