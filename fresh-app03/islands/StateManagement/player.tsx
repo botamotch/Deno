@@ -1,14 +1,14 @@
 import {
+  FallingLeft,
+  FallingRight,
+  JumpingLeft,
+  JumpingRight,
   RunningLeft,
   RunningRight,
   SittingLeft,
   SittingRight,
   StandingLeft,
   StandingRight,
-  JumpingLeft,
-  JumpingRight,
-  FallingLeft,
-  FallingRight,
   State,
 } from "./state.tsx";
 
@@ -29,6 +29,9 @@ export default class Player {
   vy: number;
   weight: number;
   maxFrame: number;
+  fps: number;
+  frameTimer: number;
+  frameInterval: number;
 
   constructor(gameWidth: number, gameHeight: number) {
     this.gameWidth = gameWidth;
@@ -58,11 +61,20 @@ export default class Player {
     this.weight = 1;
     this.maxFrame = 5;
     this.currentState = this.states[0];
+    this.fps = 30;
+    this.frameTimer = 0;
+    this.frameInterval = 1000 / this.fps;
   }
 
-  draw(contxt: CanvasRenderingContext2D) {
-    if (this.frameX < this.maxFrame) this.frameX++;
-    else this.frameX = 0;
+  draw(contxt: CanvasRenderingContext2D, deltaTime: number) {
+    if (this.frameTimer > this.frameInterval) {
+      if (this.frameX < this.maxFrame) this.frameX++;
+      else this.frameX = 0;
+      this.frameTimer = 0;
+    } else {
+      this.frameTimer += deltaTime;
+    }
+
     contxt.drawImage(
       this.image,
       this.width * this.frameX,
@@ -81,7 +93,9 @@ export default class Player {
     // horizontal movement
     this.x += this.speed;
     if (this.x <= 0) this.x = 0;
-    else if (this.x >= this.gameWidth - this.width) this.x = this.gameWidth - this.width;
+    else if (this.x >= this.gameWidth - this.width) {
+      this.x = this.gameWidth - this.width;
+    }
     // vertical mevement
     this.y += this.vy;
     if (!this.onGround()) {

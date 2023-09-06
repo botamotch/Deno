@@ -22,11 +22,15 @@ function script() {
 
     const input = new InputHandler();
 
+  let lastTime = Date.now();
     function animate() {
       assertIsDefined(ctx);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const timestamp = Date.now();
+      const deltaTime = timestamp - lastTime;
+      lastTime = timestamp;
       player.update(input.lastkey);
-      player.draw(ctx);
+      player.draw(ctx, deltaTime);
       drawStatesText(ctx, input, player);
       requestAnimationFrame(animate);
     }
