@@ -10,27 +10,30 @@ import * as $4 from "./routes/background.tsx";
 import * as $5 from "./routes/collision.tsx";
 import * as $6 from "./routes/dog.tsx";
 import * as $7 from "./routes/enemy.tsx";
-import * as $8 from "./routes/greet/[name].tsx";
-import * as $9 from "./routes/index.tsx";
-import * as $10 from "./routes/scroll.tsx";
-import * as $11 from "./routes/shoot.tsx";
-import * as $12 from "./routes/states/index.tsx";
-import * as $13 from "./routes/subclass.tsx";
+import * as $8 from "./routes/finalchapter.tsx";
+import * as $9 from "./routes/greet/[name].tsx";
+import * as $10 from "./routes/index.tsx";
+import * as $11 from "./routes/scroll.tsx";
+import * as $12 from "./routes/shoot.tsx";
+import * as $13 from "./routes/states/index.tsx";
+import * as $14 from "./routes/subclass.tsx";
 import * as $$0 from "./islands/Background.tsx";
 import * as $$1 from "./islands/BlogSection.tsx";
 import * as $$2 from "./islands/Collision.tsx";
 import * as $$3 from "./islands/Container.tsx";
 import * as $$4 from "./islands/Counter.tsx";
 import * as $$5 from "./islands/Enemy.tsx";
-import * as $$6 from "./islands/Header.tsx";
-import * as $$7 from "./islands/Shoot.tsx";
-import * as $$8 from "./islands/SideScroll.tsx";
-import * as $$9 from "./islands/StateManagement/input.tsx";
-import * as $$10 from "./islands/StateManagement/player.tsx";
-import * as $$11 from "./islands/StateManagement/script.tsx";
-import * as $$12 from "./islands/StateManagement/state.tsx";
-import * as $$13 from "./islands/StateManagement/utils.tsx";
-import * as $$14 from "./islands/Subclass.tsx";
+import * as $$6 from "./islands/FinalChapter/main.tsx";
+import * as $$7 from "./islands/FinalChapter/player.tsx";
+import * as $$8 from "./islands/Header.tsx";
+import * as $$9 from "./islands/Shoot.tsx";
+import * as $$10 from "./islands/SideScroll.tsx";
+import * as $$11 from "./islands/StateManagement/input.tsx";
+import * as $$12 from "./islands/StateManagement/player.tsx";
+import * as $$13 from "./islands/StateManagement/script.tsx";
+import * as $$14 from "./islands/StateManagement/state.tsx";
+import * as $$15 from "./islands/StateManagement/utils.tsx";
+import * as $$16 from "./islands/Subclass.tsx";
 
 const manifest = {
   routes: {
@@ -42,12 +45,13 @@ const manifest = {
     "./routes/collision.tsx": $5,
     "./routes/dog.tsx": $6,
     "./routes/enemy.tsx": $7,
-    "./routes/greet/[name].tsx": $8,
-    "./routes/index.tsx": $9,
-    "./routes/scroll.tsx": $10,
-    "./routes/shoot.tsx": $11,
-    "./routes/states/index.tsx": $12,
-    "./routes/subclass.tsx": $13,
+    "./routes/finalchapter.tsx": $8,
+    "./routes/greet/[name].tsx": $9,
+    "./routes/index.tsx": $10,
+    "./routes/scroll.tsx": $11,
+    "./routes/shoot.tsx": $12,
+    "./routes/states/index.tsx": $13,
+    "./routes/subclass.tsx": $14,
   },
   islands: {
     "./islands/Background.tsx": $$0,
@@ -56,15 +60,17 @@ const manifest = {
     "./islands/Container.tsx": $$3,
     "./islands/Counter.tsx": $$4,
     "./islands/Enemy.tsx": $$5,
-    "./islands/Header.tsx": $$6,
-    "./islands/Shoot.tsx": $$7,
-    "./islands/SideScroll.tsx": $$8,
-    "./islands/StateManagement/input.tsx": $$9,
-    "./islands/StateManagement/player.tsx": $$10,
-    "./islands/StateManagement/script.tsx": $$11,
-    "./islands/StateManagement/state.tsx": $$12,
-    "./islands/StateManagement/utils.tsx": $$13,
-    "./islands/Subclass.tsx": $$14,
+    "./islands/FinalChapter/main.tsx": $$6,
+    "./islands/FinalChapter/player.tsx": $$7,
+    "./islands/Header.tsx": $$8,
+    "./islands/Shoot.tsx": $$9,
+    "./islands/SideScroll.tsx": $$10,
+    "./islands/StateManagement/input.tsx": $$11,
+    "./islands/StateManagement/player.tsx": $$12,
+    "./islands/StateManagement/script.tsx": $$13,
+    "./islands/StateManagement/state.tsx": $$14,
+    "./islands/StateManagement/utils.tsx": $$15,
+    "./islands/Subclass.tsx": $$16,
   },
   baseUrl: import.meta.url,
 };
