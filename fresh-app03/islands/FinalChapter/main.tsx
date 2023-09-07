@@ -1,21 +1,28 @@
 import { useEffect } from "preact/hooks";
-import { Game, Player } from "./player.tsx";
+import { Game } from "./player.tsx";
 import { assertIsDefined } from "../StateManagement/utils.tsx";
 
 function main() {
   const canvas = document.getElementById("canvas1") as HTMLCanvasElement;
   assertIsDefined(canvas);
   const ctx = canvas.getContext("2d");
-  assertIsDefined(ctx);
 
   canvas.width = 500;
   canvas.height = 500;
 
   const game = new Game(canvas.width, canvas.height);
   console.log(game);
-  game.draw(ctx);
-}
 
+  function animate() {
+    assertIsDefined(ctx);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    game.update();
+    game.draw(ctx);
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+}
 
 export function FinalChapter() {
   useEffect(() => {

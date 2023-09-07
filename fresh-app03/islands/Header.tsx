@@ -24,6 +24,7 @@ export function Header(props: HeaderProps) {
     { name: "Collision", href: "/collision", current: false },
     { name: "Shoot", href: "/shoot", current: false },
     { name: "Side Scroll", href: "/scroll", current: false },
+    { name: "Final Chapter", href: "/finalchapter", current: false },
   ]
 
   pages.forEach((page, i) => {
