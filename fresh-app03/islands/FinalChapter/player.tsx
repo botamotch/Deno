@@ -14,17 +14,19 @@ export class Game {
   enemies: Enemy[];
   enemyTimer: number;
   enemyInterval: number;
+  debug: boolean;
   constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
     this.groundMargin = 80;
     this.speed = 3;
     this.player = new Player(this);
-    this.input = new InputHandler();
+    this.input = new InputHandler(this);
     this.background = new Background(this);
     this.enemies = [];
     this.enemyTimer = 0;
     this.enemyInterval = 1000;
+    this.debug = false;
   }
   update(deltaTime: number) {
     this.background.update();
@@ -129,6 +131,9 @@ export class Player {
   }
 
   draw(context: CanvasRenderingContext2D) {
+    if (this.game.debug) {
+      context.strokeRect(this.x, this.y, this.width, this.height);
+    }
     context.drawImage(
       this.image,
       this.width * this.frameX,
@@ -148,5 +153,8 @@ export class Player {
   setState(state: number) {
     this.currentState = this.states[state];
     this.currentState.enter();
+  }
+
+  checkCollision() {
   }
 }

@@ -63,6 +63,9 @@ export class FlyingEnemy extends Enemy {
     this.va = Math.random() * 0.1 + 0.1;
   }
   draw(context: CanvasRenderingContext2D) {
+    if (this.game.debug) {
+      context.strokeRect(this.x, this.y, this.width, this.height);
+    }
     context.drawImage(
       this.image,
       this.frameX * this.width,
@@ -103,6 +106,9 @@ export class GroundEnemy extends Enemy {
     this.x -= this.game.speed;
   }
   draw(context: CanvasRenderingContext2D) {
+    if (this.game.debug) {
+      context.strokeRect(this.x, this.y, this.width, this.height);
+    }
     context.drawImage(
       this.image,
       this.frameX * this.width,
@@ -143,7 +149,9 @@ export class ClimbingEnemy extends Enemy {
     if (this.y < -this.height) this.markedForDeletion = true;
   }
   draw(context: CanvasRenderingContext2D) {
-    // super.draw(context);
+    if (this.game.debug) {
+      context.strokeRect(this.x, this.y, this.width, this.height);
+    }
     context.drawImage(
       this.image,
       this.frameX * this.width,
