@@ -7,7 +7,7 @@ function main() {
   assertIsDefined(canvas);
   const ctx = canvas.getContext("2d");
 
-  canvas.width = 500;
+  canvas.width = 700;
   canvas.height = 500;
 
   const game = new Game(canvas.width, canvas.height);
@@ -43,6 +43,9 @@ export function FinalChapter() {
         <img id="layer3" class="hidden" src="layer-3.png" />
         <img id="layer4" class="hidden" src="layer-4.png" />
         <img id="layer5" class="hidden" src="layer-5.png" />
+        <img id="enemy_fly" class="hidden" src="enemy_fly.png" />
+        <img id="enemy_plant" class="hidden" src="enemy_plant.png" />
+        <img id="enemy_spider_big" class="hidden" src="enemy_spider_big.png" />
       </div>
     </div>
   );
