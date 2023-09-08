@@ -1,22 +1,31 @@
 import { InputHandler } from "./input.tsx";
-import { State, Sitting } from "./playerStates.tsx";
+import { Falling, Jumping, Running, Sitting, State } from "./playerStates.tsx";
+import { Background } from "./background.tsx";
 
 export class Game {
   width: number;
   height: number;
   player: Player;
   input: InputHandler;
+  groundMargin: number;
+  speed: number;
+  background: Background;
   constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
+    this.groundMargin = 80;
+    this.speed = 3;
     this.player = new Player(this);
     this.input = new InputHandler();
+    this.background = new Background(this);
   }
-  update() {
-    this.player.update(this.input.keys);
+  update(deltaTime: number) {
+    this.background.update();
+    this.player.update(this.input.keys, deltaTime);
   }
 
   draw(context: CanvasRenderingContext2D) {
+    this.background.draw(context);
     this.player.draw(context);
   }
 }
@@ -36,12 +45,16 @@ export class Player {
   weight: number;
   states: State[];
   currentState: State;
+  maxFrame: number;
+  fps: number;
+  frameInterval: number;
+  frameTimer: number;
   constructor(game: Game) {
     this.game = game;
     this.width = 1200 / 12;
     this.height = 913 / 10;
     this.x = 0;
-    this.y = this.game.height - this.height;
+    this.y = this.game.height - this.height - this.game.groundMargin;
     this.frameX = 0;
     this.frameY = 0;
     this.image = document.getElementById("player") as HTMLImageElement;
@@ -49,12 +62,22 @@ export class Player {
     this.maxSpeed = 10;
     this.vy = 0;
     this.weight = 1;
-    this.states = [new Sitting(this)];
+    this.maxFrame = 0;
+    this.fps = 60;
+    this.frameInterval = 1000 / this.fps;
+    this.frameTimer = 0;
+    this.states = [
+      new Sitting(this),
+      new Running(this),
+      new Jumping(this),
+      new Falling(this),
+    ];
     this.currentState = this.states[0];
     this.currentState.enter();
   }
 
-  update(input: string[]) {
+  update(input: string[], deltaTime: number) {
+    this.currentState.handleInput(input);
     // horizontal
     this.x += this.speed;
     if (input.includes("ArrowRight")) this.speed = this.maxSpeed;
@@ -65,10 +88,17 @@ export class Player {
       this.x = this.game.width - this.width;
     }
     // vertical
-    if (input.includes("ArrowUp") && this.onGround()) this.vy = -20;
     this.y += this.vy;
     if (!this.onGround()) this.vy += this.weight;
     else this.vy = 0;
+    // sprite animation
+    if (this.frameTimer > this.frameInterval) {
+      this.frameTimer = 0;
+      if (this.frameX < this.maxFrame) this.frameX++;
+      else this.frameX = 0;
+    } else {
+      this.frameTimer += deltaTime;
+    }
   }
 
   draw(context: CanvasRenderingContext2D) {
@@ -85,7 +115,7 @@ export class Player {
     );
   }
   onGround() {
-    return this.y >= this.game.height - this.height;
+    return this.y >= this.game.height - this.height - this.game.groundMargin;
   }
 
   setState(state: number) {
