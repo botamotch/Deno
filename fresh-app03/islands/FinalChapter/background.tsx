@@ -1,4 +1,4 @@
-import { Game } from "./player.tsx";
+import { Game } from "./game.tsx";
 
 class Layer {
   x: number;

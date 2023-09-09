@@ -30,15 +30,16 @@ import * as $$9 from "./islands/FinalChapter/input.tsx";
 import * as $$10 from "./islands/FinalChapter/main.tsx";
 import * as $$11 from "./islands/FinalChapter/player.tsx";
 import * as $$12 from "./islands/FinalChapter/playerStates.tsx";
-import * as $$13 from "./islands/Header.tsx";
-import * as $$14 from "./islands/Shoot.tsx";
-import * as $$15 from "./islands/SideScroll.tsx";
-import * as $$16 from "./islands/StateManagement/input.tsx";
-import * as $$17 from "./islands/StateManagement/player.tsx";
-import * as $$18 from "./islands/StateManagement/script.tsx";
-import * as $$19 from "./islands/StateManagement/state.tsx";
-import * as $$20 from "./islands/StateManagement/utils.tsx";
-import * as $$21 from "./islands/Subclass.tsx";
+import * as $$13 from "./islands/FinalChapter/ui.tsx";
+import * as $$14 from "./islands/Header.tsx";
+import * as $$15 from "./islands/Shoot.tsx";
+import * as $$16 from "./islands/SideScroll.tsx";
+import * as $$17 from "./islands/StateManagement/input.tsx";
+import * as $$18 from "./islands/StateManagement/player.tsx";
+import * as $$19 from "./islands/StateManagement/script.tsx";
+import * as $$20 from "./islands/StateManagement/state.tsx";
+import * as $$21 from "./islands/StateManagement/utils.tsx";
+import * as $$22 from "./islands/Subclass.tsx";
 
 const manifest = {
   routes: {
@@ -72,15 +73,16 @@ const manifest = {
     "./islands/FinalChapter/main.tsx": $$10,
     "./islands/FinalChapter/player.tsx": $$11,
     "./islands/FinalChapter/playerStates.tsx": $$12,
-    "./islands/Header.tsx": $$13,
-    "./islands/Shoot.tsx": $$14,
-    "./islands/SideScroll.tsx": $$15,
-    "./islands/StateManagement/input.tsx": $$16,
-    "./islands/StateManagement/player.tsx": $$17,
-    "./islands/StateManagement/script.tsx": $$18,
-    "./islands/StateManagement/state.tsx": $$19,
-    "./islands/StateManagement/utils.tsx": $$20,
-    "./islands/Subclass.tsx": $$21,
+    "./islands/FinalChapter/ui.tsx": $$13,
+    "./islands/Header.tsx": $$14,
+    "./islands/Shoot.tsx": $$15,
+    "./islands/SideScroll.tsx": $$16,
+    "./islands/StateManagement/input.tsx": $$17,
+    "./islands/StateManagement/player.tsx": $$18,
+    "./islands/StateManagement/script.tsx": $$19,
+    "./islands/StateManagement/state.tsx": $$20,
+    "./islands/StateManagement/utils.tsx": $$21,
+    "./islands/Subclass.tsx": $$22,
   },
   baseUrl: import.meta.url,
 };

@@ -1,4 +1,4 @@
-import { Falling, Jumping, Running, Sitting, State } from "./playerStates.tsx";
+import { Falling, Jumping, Running, Sitting, Rolling, State } from "./playerStates.tsx";
 import { Game } from "./game.tsx";
 
 export class Player {
@@ -42,12 +42,14 @@ export class Player {
       new Running(this),
       new Jumping(this),
       new Falling(this),
+      new Rolling(this),
     ];
     this.currentState = this.states[1];
     this.currentState.enter();
   }
 
   update(input: string[], deltaTime: number) {
+    this.checkCollision();
     this.currentState.handleInput(input);
     // horizontal
     this.x += this.speed;
@@ -92,11 +94,23 @@ export class Player {
     return this.y >= this.game.height - this.height - this.game.groundMargin;
   }
 
-  setState(state: number) {
+  setState(state: number, speed: number) {
+    this.game.speed = speed;
     this.currentState = this.states[state];
     this.currentState.enter();
   }
 
   checkCollision() {
+    this.game.enemies.forEach((enemy) => {
+      if (
+        enemy.x < this.x + this.width &&
+        enemy.x + enemy.width > this.x &&
+        enemy.y < this.y + this.height &&
+        enemy.y + enemy.height > this.y
+      ) { // collision detected
+        enemy.markedForDeletion = true;
+        this.game.score++;
+      }
+    });
   }
 }

@@ -2,6 +2,7 @@ import { Player } from "./player.tsx";
 import { InputHandler } from "./input.tsx";
 import { Background } from "./background.tsx";
 import { Enemy, FlyingEnemy, ClimbingEnemy, GroundEnemy } from "./enemies.tsx";
+import { UI } from "./ui.tsx";
 
 export class Game {
   width: number;
@@ -15,6 +16,9 @@ export class Game {
   enemyTimer: number;
   enemyInterval: number;
   debug: boolean;
+  score: number;
+  fontColor: string;
+  UI: UI;
   constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
@@ -26,7 +30,10 @@ export class Game {
     this.enemies = [];
     this.enemyTimer = 0;
     this.enemyInterval = 1000;
+    this.score = 0;
     this.debug = false;
+    this.fontColor = "black";
+    this.UI = new UI(this);
   }
   update(deltaTime: number) {
     this.background.update();
@@ -49,6 +56,7 @@ export class Game {
       enemy.draw(context);
       if (enemy.markedForDeletion) this.enemies.splice(this.enemies.indexOf(enemy), 1);
     });
+    this.UI.draw(context);
   }
 
   addEnemy() {
