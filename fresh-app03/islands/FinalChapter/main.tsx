@@ -1,5 +1,5 @@
 import { useEffect } from "preact/hooks";
-import { Game } from "./player.tsx";
+import { Game } from "./game.tsx";
 import { assertIsDefined } from "../StateManagement/utils.tsx";
 
 function main() {
