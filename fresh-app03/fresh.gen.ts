@@ -24,22 +24,25 @@ import * as $$3 from "./islands/Container.tsx";
 import * as $$4 from "./islands/Counter.tsx";
 import * as $$5 from "./islands/Enemy.tsx";
 import * as $$6 from "./islands/FinalChapter/background.tsx";
-import * as $$7 from "./islands/FinalChapter/enemies.tsx";
-import * as $$8 from "./islands/FinalChapter/game.tsx";
-import * as $$9 from "./islands/FinalChapter/input.tsx";
-import * as $$10 from "./islands/FinalChapter/main.tsx";
-import * as $$11 from "./islands/FinalChapter/player.tsx";
-import * as $$12 from "./islands/FinalChapter/playerStates.tsx";
-import * as $$13 from "./islands/FinalChapter/ui.tsx";
-import * as $$14 from "./islands/Header.tsx";
-import * as $$15 from "./islands/Shoot.tsx";
-import * as $$16 from "./islands/SideScroll.tsx";
-import * as $$17 from "./islands/StateManagement/input.tsx";
-import * as $$18 from "./islands/StateManagement/player.tsx";
-import * as $$19 from "./islands/StateManagement/script.tsx";
-import * as $$20 from "./islands/StateManagement/state.tsx";
-import * as $$21 from "./islands/StateManagement/utils.tsx";
-import * as $$22 from "./islands/Subclass.tsx";
+import * as $$7 from "./islands/FinalChapter/collisionAnimation.tsx";
+import * as $$8 from "./islands/FinalChapter/enemies.tsx";
+import * as $$9 from "./islands/FinalChapter/floatingMessage.tsx";
+import * as $$10 from "./islands/FinalChapter/game.tsx";
+import * as $$11 from "./islands/FinalChapter/input.tsx";
+import * as $$12 from "./islands/FinalChapter/main.tsx";
+import * as $$13 from "./islands/FinalChapter/particles.tsx";
+import * as $$14 from "./islands/FinalChapter/player.tsx";
+import * as $$15 from "./islands/FinalChapter/playerStates.tsx";
+import * as $$16 from "./islands/FinalChapter/ui.tsx";
+import * as $$17 from "./islands/Header.tsx";
+import * as $$18 from "./islands/Shoot.tsx";
+import * as $$19 from "./islands/SideScroll.tsx";
+import * as $$20 from "./islands/StateManagement/input.tsx";
+import * as $$21 from "./islands/StateManagement/player.tsx";
+import * as $$22 from "./islands/StateManagement/script.tsx";
+import * as $$23 from "./islands/StateManagement/state.tsx";
+import * as $$24 from "./islands/StateManagement/utils.tsx";
+import * as $$25 from "./islands/Subclass.tsx";
 
 const manifest = {
   routes: {
@@ -67,22 +70,25 @@ const manifest = {
     "./islands/Counter.tsx": $$4,
     "./islands/Enemy.tsx": $$5,
     "./islands/FinalChapter/background.tsx": $$6,
-    "./islands/FinalChapter/enemies.tsx": $$7,
-    "./islands/FinalChapter/game.tsx": $$8,
-    "./islands/FinalChapter/input.tsx": $$9,
-    "./islands/FinalChapter/main.tsx": $$10,
-    "./islands/FinalChapter/player.tsx": $$11,
-    "./islands/FinalChapter/playerStates.tsx": $$12,
-    "./islands/FinalChapter/ui.tsx": $$13,
-    "./islands/Header.tsx": $$14,
-    "./islands/Shoot.tsx": $$15,
-    "./islands/SideScroll.tsx": $$16,
-    "./islands/StateManagement/input.tsx": $$17,
-    "./islands/StateManagement/player.tsx": $$18,
-    "./islands/StateManagement/script.tsx": $$19,
-    "./islands/StateManagement/state.tsx": $$20,
-    "./islands/StateManagement/utils.tsx": $$21,
-    "./islands/Subclass.tsx": $$22,
+    "./islands/FinalChapter/collisionAnimation.tsx": $$7,
+    "./islands/FinalChapter/enemies.tsx": $$8,
+    "./islands/FinalChapter/floatingMessage.tsx": $$9,
+    "./islands/FinalChapter/game.tsx": $$10,
+    "./islands/FinalChapter/input.tsx": $$11,
+    "./islands/FinalChapter/main.tsx": $$12,
+    "./islands/FinalChapter/particles.tsx": $$13,
+    "./islands/FinalChapter/player.tsx": $$14,
+    "./islands/FinalChapter/playerStates.tsx": $$15,
+    "./islands/FinalChapter/ui.tsx": $$16,
+    "./islands/Header.tsx": $$17,
+    "./islands/Shoot.tsx": $$18,
+    "./islands/SideScroll.tsx": $$19,
+    "./islands/StateManagement/input.tsx": $$20,
+    "./islands/StateManagement/player.tsx": $$21,
+    "./islands/StateManagement/script.tsx": $$22,
+    "./islands/StateManagement/state.tsx": $$23,
+    "./islands/StateManagement/utils.tsx": $$24,
+    "./islands/Subclass.tsx": $$25,
   },
   baseUrl: import.meta.url,
 };

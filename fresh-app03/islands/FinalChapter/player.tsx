@@ -1,5 +1,16 @@
-import { Falling, Jumping, Running, Sitting, Rolling, State } from "./playerStates.tsx";
+import {
+  Diving,
+  Falling,
+  Hit,
+  Jumping,
+  Rolling,
+  Running,
+  Sitting,
+  State,
+} from "./playerStates.tsx";
 import { Game } from "./game.tsx";
+import { CollisionAnimation } from "./collisionAnimation.tsx";
+import { FloatingMessage } from "./floatingMessage.tsx";
 
 export class Player {
   game: Game;
@@ -43,6 +54,8 @@ export class Player {
       new Jumping(this),
       new Falling(this),
       new Rolling(this),
+      new Diving(this),
+      new Hit(this),
     ];
     this.currentState = this.states[1];
     this.currentState.enter();
@@ -109,7 +122,30 @@ export class Player {
         enemy.y + enemy.height > this.y
       ) { // collision detected
         enemy.markedForDeletion = true;
-        this.game.score++;
+        this.game.collisions.push(
+          new CollisionAnimation(
+            this.game,
+            enemy.x + enemy.width * 0.5,
+            enemy.y + enemy.height * 0.5,
+          ),
+        );
+        if (
+          this.currentState === this.states[4] ||
+          this.currentState === this.states[5]
+        ) {
+          this.game.score += 1;
+          this.game.floatingMessage.push(
+            new FloatingMessage("+1", enemy.x, enemy.y, 150, 50),
+          );
+        } else {
+          this.setState(6, 0);
+          this.game.lives--;
+          if (this.game.lives <= 0) this.game.gameOver = true;
+          this.game.score -= 5;
+          this.game.floatingMessage.push(
+            new FloatingMessage("-5", enemy.x, enemy.y, 150, 50),
+          );
+        }
       }
     });
   }
