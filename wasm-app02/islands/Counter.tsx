@@ -8,23 +8,13 @@ interface CounterProps {
 }
 
 export default function Counter(props: CounterProps) {
-  async function Main() {
-    await instantiate({
-      url: new URL("rs_lib_bg.wasm", location.origin),
-    });
-    main();
-  }
-  async function Add() {
-    await instantiate({
-      url: new URL("rs_lib_bg.wasm", location.origin),
-    });
-    console.log(
-      "count +1 is " + add(1, props.count.value),
-    );
-  }
-
   useEffect(() => {
-    Main();
+    (async () => {
+      await instantiate({
+        url: new URL("rs_lib_bg.wasm", location.origin),
+      });
+      main();
+    })();
   }, []);
 
   return (
@@ -32,7 +22,7 @@ export default function Counter(props: CounterProps) {
       <Button
         onClick={() => {
           props.count.value -= 1;
-          Add();
+          console.log("count +1 is " + add(1, props.count.value));
         }}
       >
         -1
@@ -41,7 +31,7 @@ export default function Counter(props: CounterProps) {
       <Button
         onClick={() => {
           props.count.value += 1;
-          Add();
+          console.log("count +1 is " + add(1, props.count.value));
         }}
       >
         +1
