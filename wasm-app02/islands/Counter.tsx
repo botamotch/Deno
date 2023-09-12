@@ -15,7 +15,7 @@ export default function Counter(props: CounterProps) {
       });
       main();
     })();
-  }, []);
+  });
 
   return (
     <div class="flex gap-8 py-6">
@@ -36,6 +36,10 @@ export default function Counter(props: CounterProps) {
       >
         +1
       </Button>
+      <canvas
+        id="canvas"
+        class="bg-blue-300 border-4 border-gray-800 max-w-full max-h-full"
+      />
     </div>
   );
 }

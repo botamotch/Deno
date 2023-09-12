@@ -4,6 +4,13 @@ use web_sys::console;
 #[wasm_bindgen]
 pub fn main() {
   let window = web_sys::window().unwrap();
+  let document = window.document().unwrap();
+  let canvas = document
+      .get_element_by_id("canvas")
+      .unwrap()
+      .dyn_into::<web_sys::HtmlCanvasElement>()
+      .unwrap();
+
   console::log_1(&JsValue::from_str("Hello World from wasm window set!"));
 }
 
