@@ -80,16 +80,21 @@ pub fn main() {
     .dyn_into::<web_sys::CanvasRenderingContext2d>()
     .unwrap();
 
-  context.set_line_width(1.0);
-  let mut color: [u8; 3] = [0, 0, 0];
-  getrandom(&mut color).unwrap();
-  let color_str = format!("rgb({}, {}, {})", color[0], color[1], color[2]);
   sierpinski(
     &context,
     [(300.0, 0.0), (0.0, 600.0), (600.0, 600.0)],
     5,
-    &color_str,
+    &"rgb(0, 200, 200)",
   );
+
+  let image = web_sys::HtmlImageElement::new().unwrap();
+  let callback = Closure::once(|| {
+    web_sys::console::log_1(&JsValue::from_str("loaded"));
+  });
+  image.set_onload(Some(callback.as_ref().unchecked_ref()));
+  callback.forget();
+  image.set_src("resized/rhb/Idle (1).png");
+
   console::log_1(&JsValue::from_str("Hello World from wasm window set!!!"));
 }
 

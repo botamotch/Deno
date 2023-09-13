@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Game Development by Rust and WebAssembly</title>
+        <title>Ch.1 Hello WebAssembly</title>
       </Head>
       <div class="text-center my-4">
         <h1 class="mt-4 text-xl font-bold tracking-tight text-gray-900">
