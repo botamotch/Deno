@@ -1,4 +1,6 @@
 use getrandom::getrandom;
+use std::rc::Rc;
+use std::sync::Mutex;
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 
@@ -62,40 +64,61 @@ fn draw_triangle(
 
 #[wasm_bindgen]
 pub fn main() {
-  let window = web_sys::window().unwrap();
-  let document = window.document().unwrap();
-  let canvas = document
-    .get_element_by_id("canvas1")
-    .unwrap()
-    .dyn_into::<web_sys::HtmlCanvasElement>()
-    .unwrap();
+  wasm_bindgen_futures::spawn_local(async move {
+    let window = web_sys::window().unwrap();
+    let document = window.document().unwrap();
+    let canvas = document
+      .get_element_by_id("canvas1")
+      .unwrap()
+      .dyn_into::<web_sys::HtmlCanvasElement>()
+      .unwrap();
 
-  canvas.set_width(600);
-  canvas.set_height(600);
+    canvas.set_width(600);
+    canvas.set_height(600);
 
-  let context = canvas
-    .get_context("2d")
-    .unwrap()
-    .unwrap()
-    .dyn_into::<web_sys::CanvasRenderingContext2d>()
-    .unwrap();
+    let context = canvas
+      .get_context("2d")
+      .unwrap()
+      .unwrap()
+      .dyn_into::<web_sys::CanvasRenderingContext2d>()
+      .unwrap();
 
-  sierpinski(
-    &context,
-    [(300.0, 0.0), (0.0, 600.0), (600.0, 600.0)],
-    5,
-    &"rgb(0, 200, 200)",
-  );
+    sierpinski(
+      &context,
+      [(300.0, 0.0), (0.0, 600.0), (600.0, 600.0)],
+      5,
+      &"rgb(0, 200, 200)",
+    );
 
-  let image = web_sys::HtmlImageElement::new().unwrap();
-  let callback = Closure::once(|| {
-    web_sys::console::log_1(&JsValue::from_str("loaded"));
-  });
-  image.set_onload(Some(callback.as_ref().unchecked_ref()));
-  callback.forget();
-  image.set_src("resized/rhb/Idle (1).png");
+    let (success_tx, success_rx) =
+      futures::channel::oneshot::channel::<Result<(), JsValue>>();
+    let success_tx = Rc::new(Mutex::new(Some(success_tx)));
+    let error_tx = Rc::clone(&success_tx);
+    let image = web_sys::HtmlImageElement::new().unwrap();
+    let callback = Closure::once(move || {
+      if let Some(success_tx) =
+        success_tx.lock().ok().and_then(|mut opt| opt.take())
+      {
+        let _ = success_tx.send(Ok(()));
+      }
+      web_sys::console::log_1(&JsValue::from_str("image load success"));
+    });
+    let callback_error = Closure::once(move |err| {
+      if let Some(error_tx) =
+        error_tx.lock().ok().and_then(|mut opt| opt.take())
+      {
+        let _ = error_tx.send(Err(err));
+      }
+      web_sys::console::log_1(&JsValue::from_str("image load error"));
+    });
+    image.set_onload(Some(callback.as_ref().unchecked_ref()));
+    image.set_onerror(Some(callback_error.as_ref().unchecked_ref()));
 
-  console::log_1(&JsValue::from_str("Hello World from wasm window set!!!"));
+    image.set_src("resized/rhb/Idle (1).png");
+    let _ = success_rx.await;
+    let _ = context.draw_image_with_html_image_element(&image, 0.0, 0.0);
+    console::log_1(&JsValue::from_str("Hello World from wasm window set!!!"));
+  })
 }
 
 #[wasm_bindgen]
