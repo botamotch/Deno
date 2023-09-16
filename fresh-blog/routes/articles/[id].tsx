@@ -2,11 +2,6 @@ import { Handlers, PageProps } from "$fresh/server.ts";
 import Header from "../../islands/Header.tsx";
 import { Article, findArticleById } from "../../util/db.tsx";
 
-// interface Data {
-//   article: Article;
-//   parsedContent: string;
-// }
-
 export const handler: Handlers<Article | null> = {
   async GET(_, ctx) {
     const { id } = ctx.params;
