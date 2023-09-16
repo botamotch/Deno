@@ -18,6 +18,9 @@ export default function Home(props: PageProps<Article[]>) {
         <div class="max-w-screen-md mx-auto flex flex-col items-center justify-center">
           <h1 class="text-left w-full font-bold text-5xl py-8">Fresh blog</h1>
           <h3 class="text-left w-full font-bold text-2xl py-4">posts</h3>
+          <a href="/articles/create" type="button" class="rounded-lg border border-blue-500 bg-blue-500 px-5 py-2 text-center text-sm font-bold text-white shadow-sm transition-all hover:border-primary-700 hover:bg-primary-700 focus:ring focus:ring-primary-200 disabled:cursor-not-allowed disabled:border-blue-300 disabled:bg-blue-300">
+            Create Post
+          </a>
           {props.data.map((a) => (
             <div class="bg-white rounded-lg my-4 p-4 w-full">
               <h3 class="font-bold">

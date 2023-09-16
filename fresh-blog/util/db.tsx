@@ -44,3 +44,30 @@ export const findArticleById = async (id: string) => {
     return null;
   }
 }
+
+export const createArticle = async (content: string, title: string) => {
+  try {
+    const result = await client.queryObject<Article>(
+      "INSERT INTO articles (title, content) VALUES ($1, $2) RETURNING",
+      [title, content]
+    );
+    return result.rows[0]
+  } catch(e) {
+    console.error(e);
+    return null;
+  }
+}
+
+export const updateArticle = async (id: string, content: string, title: string) => {
+  try {
+    const result = await client.queryObject<Article>(
+      "UPDATE articles (title, content) VALUES ($1, $2) WHERE id = $3 RETURNING",
+      [title, content, id]
+    );
+    return result.rows[0]
+  } catch(e) {
+    console.error(e);
+    return null;
+  }
+}
+

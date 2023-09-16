@@ -3,7 +3,7 @@ import Header from "../../islands/Header.tsx";
 import { Article, findArticleById } from "../../util/db.tsx";
 
 export const handler: Handlers<Article | null> = {
-  async GET(_, ctx) {
+  async GET(_req, ctx) {
     const { id } = ctx.params;
     const article = await findArticleById(id);
     if (!article) {
