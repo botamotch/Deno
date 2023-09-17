@@ -28,8 +28,10 @@ export default function Header() {
             </svg>
           </button>
         </div>
-        <div class="hidden lg:flex lg:flex-1 lg:justify-end">
-          <a href="#" class="text-sm font-semibold leading-6 text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
+        <div class="hidden lg:flex lg:flex-1 lg:justify-end gap-5">
+          <a href="#" class="text-sm font-semibold leading-6 text-gray-900">
+            Log in <span aria-hidden="true">&rarr;</span>
+          </a>
         </div>
       </nav>
       <div hidden={sidebarHidden.value} class="lg:hidden" role="dialog" aria-modal="true">
@@ -50,7 +52,9 @@ export default function Header() {
           <div class="mt-6 flow-root">
             <div class="-my-6 divide-y divide-gray-500/10">
               <div class="py-6">
-                <a href="#" class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Log in</a>
+                <a href="#" class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">
+                  Log in
+                </a>
               </div>
             </div>
           </div>
