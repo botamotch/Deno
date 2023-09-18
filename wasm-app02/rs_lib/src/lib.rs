@@ -1,8 +1,28 @@
 use getrandom::getrandom;
+use serde::Deserialize;
+use std::collections::HashMap;
 use std::rc::Rc;
 use std::sync::Mutex;
 use wasm_bindgen::prelude::*;
 use web_sys::console;
+
+#[derive(Deserialize)]
+struct Sheet {
+  frames: HashMap<String, Cell>,
+}
+
+#[derive(Deserialize)]
+struct Rect {
+  x: u16,
+  y: u16,
+  w: u16,
+  h: u16,
+}
+
+#[derive(Deserialize)]
+struct Cell {
+  frame: Rect,
+}
 
 fn sierpinski(
   context: &web_sys::CanvasRenderingContext2d,
@@ -62,33 +82,46 @@ fn draw_triangle(
   context.fill();
 }
 
+async fn fetch_json(json_path: &str) -> Result<JsValue, JsValue> {
+  let window = web_sys::window().unwrap();
+  let resp_value =
+    wasm_bindgen_futures::JsFuture::from(window.fetch_with_str(json_path))
+      .await?;
+  let resp: web_sys::Response = resp_value.dyn_into()?;
+
+  wasm_bindgen_futures::JsFuture::from(resp.json()?).await
+}
+
 #[wasm_bindgen]
 pub fn main() {
+  let window = web_sys::window().unwrap();
+  let document = window.document().unwrap();
+  let canvas = document
+    .get_element_by_id("canvas1")
+    .unwrap()
+    .dyn_into::<web_sys::HtmlCanvasElement>()
+    .unwrap();
+
+  canvas.set_width(600);
+  canvas.set_height(600);
+
+  let context = canvas
+    .get_context("2d")
+    .unwrap()
+    .unwrap()
+    .dyn_into::<web_sys::CanvasRenderingContext2d>()
+    .unwrap();
+
   wasm_bindgen_futures::spawn_local(async move {
-    let window = web_sys::window().unwrap();
-    let document = window.document().unwrap();
-    let canvas = document
-      .get_element_by_id("canvas1")
-      .unwrap()
-      .dyn_into::<web_sys::HtmlCanvasElement>()
-      .unwrap();
+    // sierpinski( &context, [(300.0, 0.0), (0.0, 600.0), (600.0, 600.0)], 5, &"rgb(0, 200, 200)");
 
-    canvas.set_width(600);
-    canvas.set_height(600);
+    let json = fetch_json("rhb.json")
+      .await
+      .expect("Could note fetch rhb.json");
 
-    let context = canvas
-      .get_context("2d")
-      .unwrap()
-      .unwrap()
-      .dyn_into::<web_sys::CanvasRenderingContext2d>()
-      .unwrap();
-
-    sierpinski(
-      &context,
-      [(300.0, 0.0), (0.0, 600.0), (600.0, 600.0)],
-      5,
-      &"rgb(0, 200, 200)",
-    );
+    let sheet: Sheet = json
+      .into_serde()
+      .expect("Could not convert rhb.json into a Sheet structure");
 
     let (success_tx, success_rx) =
       futures::channel::oneshot::channel::<Result<(), JsValue>>();
@@ -114,9 +147,32 @@ pub fn main() {
     image.set_onload(Some(callback.as_ref().unchecked_ref()));
     image.set_onerror(Some(callback_error.as_ref().unchecked_ref()));
 
-    image.set_src("resized/rhb/Idle (1).png");
+    image.set_src("rhb.png");
     let _ = success_rx.await;
-    let _ = context.draw_image_with_html_image_element(&image, 0.0, 0.0);
+    let mut frame = -1;
+    let interval_callback = Closure::wrap(Box::new(move || {
+      frame = (frame + 1) % 8;
+      let frame_name = format!("Run ({}).png", frame + 1);
+      context.clear_rect(0.0, 0.0, 600.0, 600.0);
+      let sprite = sheet.frames.get(&frame_name).expect("Cell not found");
+      let _ = context.draw_image_with_html_image_element_and_sw_and_sh_and_dx_and_dy_and_dw_and_dh(
+        &image,
+        sprite.frame.x.into(),
+        sprite.frame.y.into(),
+        sprite.frame.w.into(),
+        sprite.frame.h.into(),
+        300.0,
+        300.0,
+        sprite.frame.w.into(),
+        sprite.frame.h.into(),
+      );
+    }) as Box<dyn FnMut()>);
+    let _ = window.set_interval_with_callback_and_timeout_and_arguments_0(
+      interval_callback.as_ref().unchecked_ref(),
+      50,
+    );
+    interval_callback.forget();
+
     console::log_1(&JsValue::from_str("Hello World from wasm window set!!!"));
   })
 }
