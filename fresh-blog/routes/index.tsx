@@ -1,6 +1,7 @@
 import Header from "../islands/Header.tsx";
 import { Handlers, PageProps } from "$fresh/server.ts";
-import { SignInWithPassword } from "../util/auth.tsx";
+import { CheckSession, SignInWithPassword } from "../util/auth.tsx";
+import { setCookie } from "https://deno.land/std@0.201.0/http/cookie.ts";
 
 interface LoginData {
   error: {
@@ -12,8 +13,28 @@ interface LoginData {
 }
 
 export const handler: Handlers<LoginData> = {
-  GET(_req, ctx) {
-    return ctx.render();
+  async GET(req, ctx) {
+    const session = await CheckSession(req);
+    if (session instanceof Response) {
+      return ctx.render();
+    } else {
+      const res = new Response("", {
+        status: 302,
+        headers: {
+          Location: "/articles",
+        },
+      });
+      setCookie(res.headers, {
+        name: "access_token",
+        value: session.access_token,
+      });
+      setCookie(res.headers, {
+        name: "refresh_token",
+        value: session.refresh_token,
+      });
+
+      return res;
+    }
   },
   async POST(req, ctx) {
     const formData = await req.formData();
@@ -34,12 +55,23 @@ export const handler: Handlers<LoginData> = {
     const { data, error } = await SignInWithPassword(email, password);
 
     if (error == null) {
-      return new Response("", {
+      const res = new Response("", {
         status: 302,
         headers: {
           Location: "/articles",
         },
       });
+
+      setCookie(res.headers, {
+        name: "access_token",
+        value: data.session.access_token,
+      });
+      setCookie(res.headers, {
+        name: "refresh_token",
+        value: data.session.refresh_token,
+      });
+
+      return res;
     } else {
       return ctx.render({
         error: {
@@ -53,7 +85,7 @@ export const handler: Handlers<LoginData> = {
   },
 };
 
-export default function Home(props: PageProps<LoginData>) {
+export default function Home(_props: PageProps<LoginData>) {
   return (
     <>
       <Header />
