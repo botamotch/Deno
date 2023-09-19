@@ -1,13 +1,12 @@
 use serde::Deserialize;
 use serde_wasm_bindgen::from_value;
 use std::collections::HashMap;
-use std::rc::Rc;
-use std::sync::Mutex;
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 #[macro_use]
 mod browser;
 mod test;
+mod engine;
 
 #[derive(Deserialize)]
 struct Sheet {
@@ -60,32 +59,9 @@ pub fn main() {
     let sheet: Sheet = from_value(json)
       .expect("Could not convert rhb.json into a Sheet structure");
 
-    let (success_tx, success_rx) =
-      futures::channel::oneshot::channel::<Result<(), JsValue>>();
-    let success_tx = Rc::new(Mutex::new(Some(success_tx)));
-    let error_tx = Rc::clone(&success_tx);
-    let image = web_sys::HtmlImageElement::new().unwrap();
-    let callback = Closure::once(move || {
-      if let Some(success_tx) =
-        success_tx.lock().ok().and_then(|mut opt| opt.take())
-      {
-        let _ = success_tx.send(Ok(()));
-      }
-      web_sys::console::log_1(&JsValue::from_str("image load success"));
-    });
-    let callback_error = Closure::once(move |err| {
-      if let Some(error_tx) =
-        error_tx.lock().ok().and_then(|mut opt| opt.take())
-      {
-        let _ = error_tx.send(Err(err));
-      }
-      web_sys::console::log_1(&JsValue::from_str("image load error"));
-    });
-    image.set_onload(Some(callback.as_ref().unchecked_ref()));
-    image.set_onerror(Some(callback_error.as_ref().unchecked_ref()));
-
-    image.set_src("rhb.png");
-    let _ = success_rx.await;
+    let image = engine::load_image("rhb.png")
+      .await
+      .expect("Could not load rhb.png");
     let mut frame = -1;
     let interval_callback = Closure::wrap(Box::new(move || {
       frame = (frame + 1) % 8;
