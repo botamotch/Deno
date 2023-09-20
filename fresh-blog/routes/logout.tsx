@@ -6,12 +6,10 @@ import { Handlers } from "$fresh/server.ts";
 import { SignOut } from "../util/auth.tsx";
 
 export const handler: Handlers = {
-  GET(_req, _ctx) {
-    // const cookies = getCookies(req.headers);
-    // const access_token = cookies["access_token"] == undefined
-    //   ? ""
-    //   : cookies["access_token"];
-    // SignOut(access_token);
+  GET(req, _ctx) {
+    console.log("### logout");
+    const cookies = getCookies(req.headers);
+    SignOut(cookies["access_token"]);
 
     const res = new Response("", {
       status: 302,

@@ -6,6 +6,15 @@ import { CSS, render } from "https://deno.land/x/gfm@0.2.5/mod.ts";
 
 export const handler: Handlers<Article | null> = {
   async GET(_req, ctx) {
+    if (!ctx.state.isLogin) {
+      return new Response("", {
+        status: 302,
+        headers: {
+          Location: "/",
+        },
+      });
+    }
+
     const { id } = ctx.params;
     const article = await findArticleById(id);
     if (!article) {

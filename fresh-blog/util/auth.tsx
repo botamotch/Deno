@@ -1,15 +1,12 @@
 import {
-  deleteCookie,
-  getCookies,
-} from "https://deno.land/std@0.201.0/http/cookie.ts";
-import {
   createClient,
   SupabaseClient,
 } from "https://esm.sh/@supabase/supabase-js@2.33.2";
 
 export interface Session {
-  access_token: string;
-  refresh_token: string;
+  is_login: boolean;
+  access_token?: string;
+  refresh_token?: string;
 }
 
 const supabaseKey = Deno.env.get("SUPABASE_KEY")!;
@@ -43,22 +40,26 @@ export async function SignOut(access_token: string) {
   return;
 }
 
-export async function CheckSession(req: Request): Promise<Session | Response> {
-  init();
-  const cookies = getCookies(req.headers);
-  const access_token = cookies["access_token"];
-  const refresh_token = cookies["refresh_token"];
+export async function CheckSession(
+  access_token: string,
+  refresh_token: string,
+): Promise<Session> {
+  if (!access_token || !refresh_token) {
+    return { is_login: false };
+  }
 
+  init();
   // 1. getUser
   const resGetUser = await supabase.auth.getUser(access_token);
   if (!resGetUser.error) {
     console.log("### getUser Success");
+    console.log(`refresh_token : ${refresh_token}`);
     console.log(`access_token : ${access_token}`);
-    const session: Session = {
-      access_token: access_token,
+    return {
+      is_login: true,
       refresh_token: refresh_token,
+      access_token: access_token,
     };
-    return session;
   }
 
   // 2. refreshSession
@@ -67,12 +68,17 @@ export async function CheckSession(req: Request): Promise<Session | Response> {
   });
   if (!resRefreshSession.error) {
     console.log("### refreshSession Success");
-    console.log(`access_token : ${access_token}`);
-    const session: Session = {
+    console.log(
+      `refresh_token : ${resRefreshSession.data.session!.refresh_token}`,
+    );
+    console.log(
+      `access_token : ${resRefreshSession.data.session!.access_token}`,
+    );
+    return {
+      is_login: true,
       refresh_token: resRefreshSession.data.session!.refresh_token,
       access_token: resRefreshSession.data.session!.access_token,
     };
-    return session;
   }
 
   // 3. error, redirect to top
@@ -81,13 +87,5 @@ export async function CheckSession(req: Request): Promise<Session | Response> {
   );
   console.log(`access_token : ${access_token}`);
 
-  const resError = new Response("", {
-    status: 302,
-    headers: {
-      Location: "/",
-    },
-  });
-  deleteCookie(resError.headers, "access_token");
-  deleteCookie(resError.headers, "refresh_token");
-  return resError;
+  return { is_login: false };
 }

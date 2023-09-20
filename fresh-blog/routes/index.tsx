@@ -1,6 +1,6 @@
 import Header from "../islands/Header.tsx";
 import { Handlers, PageProps } from "$fresh/server.ts";
-import { CheckSession, SignInWithPassword } from "../util/auth.tsx";
+import { SignInWithPassword } from "../util/auth.tsx";
 import { setCookie } from "https://deno.land/std@0.201.0/http/cookie.ts";
 
 interface LoginData {
@@ -12,29 +12,19 @@ interface LoginData {
   password?: string;
 }
 
-export const handler: Handlers<LoginData> = {
-  async GET(req, ctx) {
-    const session = await CheckSession(req);
-    if (session instanceof Response) {
-      return ctx.render();
-    } else {
-      const res = new Response("", {
+export const handler: Handlers<LoginData, { isLogin: boolean }> = {
+  async GET(_req, ctx) {
+    console.log("isLogin : " + ctx.state.isLogin);
+    if (ctx.state.isLogin) {
+      return new Response("", {
         status: 302,
         headers: {
           Location: "/articles",
         },
       });
-      setCookie(res.headers, {
-        name: "access_token",
-        value: session.access_token,
-      });
-      setCookie(res.headers, {
-        name: "refresh_token",
-        value: session.refresh_token,
-      });
-
-      return res;
     }
+
+    return await ctx.render();
   },
   async POST(req, ctx) {
     const formData = await req.formData();
@@ -53,6 +43,7 @@ export const handler: Handlers<LoginData> = {
     }
 
     const { data, error } = await SignInWithPassword(email, password);
+    console.log("SignInWithPassword error : " + error);
 
     if (error == null) {
       const res = new Response("", {
@@ -61,14 +52,18 @@ export const handler: Handlers<LoginData> = {
           Location: "/articles",
         },
       });
+      console.log("refresh_token : " + data.session.refresh_token);
+      console.log("access_token : " + data.session.access_token);
 
       setCookie(res.headers, {
         name: "access_token",
         value: data.session.access_token,
+        path: "/",
       });
       setCookie(res.headers, {
         name: "refresh_token",
         value: data.session.refresh_token,
+        path: "/",
       });
 
       return res;

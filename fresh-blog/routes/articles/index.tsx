@@ -1,36 +1,20 @@
 import Header from "../../islands/Header.tsx";
 import { Article, findAllArticles } from "../../util/db.tsx";
 import { Handlers, PageProps } from "$fresh/server.ts";
-import { setCookie } from "https://deno.land/std@0.201.0/http/cookie.ts";
-import { CheckSession } from "../../util/auth.tsx";
 
-export const handler: Handlers<Article[]> = {
-  async GET(req, ctx) {
-    const session = await CheckSession(req);
-
-    // TODO
-    // こんな感じで実装できればコードとしての効率はいいんだけど
-    // システムとしては悪手。あとからResponseを生成した後にデータ
-    // を取得することができればいいんだけど、そんな方法があるか
-    // const articles = await findAllArticles();
-    // const res = ctx.render(articles);
-    // return await CheckSession(res);
-
-    if (session instanceof Response) {
-      return session;
-    } else {
-      const articles = await findAllArticles();
-      const res = await ctx.render(articles);
-      setCookie(res.headers, {
-        name: "access_token",
-        value: session.access_token,
+export const handler: Handlers<Article[], { isLogin: boolean }> = {
+  async GET(_req, ctx) {
+    if (!ctx.state.isLogin) {
+      return new Response("", {
+        status: 302,
+        headers: {
+          Location: "/",
+        },
       });
-      setCookie(res.headers, {
-        name: "refresh_token",
-        value: session.refresh_token,
-      });
-      return res;
     }
+
+    const articles = await findAllArticles();
+    return await ctx.render(articles);
   },
 };
 
