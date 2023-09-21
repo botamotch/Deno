@@ -36,7 +36,7 @@ export const handler: Handlers<Data> = {
     return new Response("", {
       status: 303,
       headers: {
-        Location: "/",
+        Location: "/articles",
       },
     });
   },
@@ -45,7 +45,7 @@ export const handler: Handlers<Data> = {
 export default function Create(props: PageProps<Data | undefined>) {
   return (
     <>
-      <Header />
+      <Header isLogin={true} />
       <div class="px-4 py-8 mx-auto bg-gray-100">
         <div class="max-w-screen-md mx-auto flex flex-col items-center justify-center">
           <h1 class="text-left w-full font-bold text-5xl py-8">Create Post</h1>
