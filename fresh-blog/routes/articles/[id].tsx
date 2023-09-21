@@ -38,7 +38,7 @@ export default function Page({ data }: PageProps<Article | null>) {
         <title>{data.title}</title>
         <link rel="stylesheet" href="/article.css" />
       </Head>
-      <Header />
+      <Header isLogin={true} />
       <div class="px-4 py-8 mx-auto bg-gray-100">
         <div class="max-w-screen-md mx-auto flex flex-col items-center justify-center">
           <h1 class="mt-10 text-2xl font-bold">

@@ -1,10 +1,11 @@
 import { useSignal } from "@preact/signals";
 
-// interface HeaderProps {
-//   page: string;
-// }
+interface HeaderProps {
+  isLogin: boolean;
+}
 
-export default function Header() {
+export default function Header(props: HeaderProps) {
+  const isLogin = props.isLogin;
   const sidebarHidden = useSignal(true);
 
   function ToggleSidebar() {
@@ -15,7 +16,7 @@ export default function Header() {
     <header class="bg-white">
       <nav class="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
         <div class="flex lg:flex-1">
-          <a href="/" class="-m-1.5 p-1.5">
+          <a href="/" class="m-0 p-1.5">
             <span class="sr-only">Your Company</span>
             <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt=""/>
           </a>
@@ -29,7 +30,16 @@ export default function Header() {
           </button>
         </div>
         <div class="hidden lg:flex lg:flex-1 lg:justify-end gap-5">
-          <a href="/logout" class="text-sm font-semibold leading-6 text-gray-900">
+          <a
+            href="/login"
+            class={"rounded-lg border border-blue-500 bg-blue-500 px-5 py-2 text-center text-sm font-bold text-white shadow-sm transition-all hover:border-primary-700 hover:bg-primary-700 focus:ring focus:ring-primary-200 disabled:cursor-not-allowed disabled:border-blue-300 disabled:bg-blue-300 " + ( !isLogin ? "visible" : "hidden") }
+          >
+            Login
+          </a>
+          <a
+            href="/api/logout"
+            class={"text-sm font-semibold leading-6 text-gray-900 " + ( isLogin ? "visible" : "hidden")}
+          >
             Log out <span aria-hidden="true">&rarr;</span>
           </a>
         </div>
@@ -38,7 +48,7 @@ export default function Header() {
         <div class="fixed inset-0 z-10"></div>
         <div class="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
           <div class="flex items-center justify-between">
-            <a href="#" class="-m-1.5 p-1.5">
+            <a href="#" class="m-0 p-1.5">
               <span class="sr-only">Your Company</span>
               <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt=""/>
             </a>
@@ -52,7 +62,16 @@ export default function Header() {
           <div class="mt-6 flow-root">
             <div class="-my-6 divide-y divide-gray-500/10">
               <div class="py-6">
-                <a href="/logout" class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">
+                <a
+                  href="/login"
+                  class={"-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 " + ( isLogin ? "visible" : "hidden")}
+                >
+                  Log in
+                </a>
+                <a
+                  href="/api/logout"
+                  class={"-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 " + ( !isLogin ? "visible" : "hidden")}
+                >
                   Log out
                 </a>
               </div>

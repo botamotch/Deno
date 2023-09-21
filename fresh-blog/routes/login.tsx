@@ -1,7 +1,11 @@
 import Header from "../islands/Header.tsx";
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { SignInWithPassword } from "../util/auth.tsx";
-import { setCookie } from "https://deno.land/std@0.201.0/http/cookie.ts";
+import {
+  getCookies,
+  setCookie,
+} from "https://deno.land/std@0.201.0/http/cookie.ts";
+import { CheckSession } from "../util/auth.tsx";
 
 interface LoginData {
   error: {
@@ -13,15 +17,32 @@ interface LoginData {
 }
 
 export const handler: Handlers<LoginData, { isLogin: boolean }> = {
-  async GET(_req, ctx) {
+  async GET(req, ctx) {
+    const cookies = getCookies(req.headers);
+    const access_token = cookies["access_token"];
+    const refresh_token = cookies["refresh_token"];
+    const session = await CheckSession(access_token, refresh_token);
+
+    ctx.state.isLogin = session.is_login;
     console.log("isLogin : " + ctx.state.isLogin);
     if (ctx.state.isLogin) {
-      return new Response("", {
+      const res = new Response("", {
         status: 302,
         headers: {
           Location: "/articles",
         },
       });
+      setCookie(res.headers, {
+        name: "access_token",
+        value: session.access_token!,
+        path: "/",
+      });
+      setCookie(res.headers, {
+        name: "refresh_token",
+        value: session.refresh_token!,
+        path: "/",
+      });
+      return res;
     }
 
     return await ctx.render();
@@ -86,7 +107,28 @@ export default function Home(_props: PageProps<LoginData>) {
       <Header isLogin={false} />
       <div class="px-4 py-8 mx-auto bg-gray-100">
         <div class="max-w-screen-md mx-auto flex flex-col items-center justify-center">
-          <h1 class="text-left w-full font-bold text-5xl py-8">Fresh blog</h1>
+          <form method="POST">
+            <h3 class="font-bold mt-4 mb-2">Email</h3>
+            <input
+              id="email"
+              class="w-full p-2 border border-gray-300 rounded-md"
+              type="text"
+              name="email"
+            />
+            <h3 class="font-bold mt-4 mb-2">Password</h3>
+            <input
+              id="password"
+              class="w-full p-2 border border-gray-300 rounded-md"
+              type="password"
+              name="password"
+            />
+            <button
+              type="submit"
+              class="rounded-lg border border-blue-500 bg-blue-500 mt-4 px-5 py-2 text-center text-sm font-bold text-white shadow-sm transition-all hover:border-primary-700 hover:bg-primary-700 focus:ring focus:ring-primary-200 disabled:cursor-not-allowed disabled:border-blue-300 disabled:bg-blue-300"
+            >
+              Login
+            </button>
+          </form>
         </div>
       </div>
     </>

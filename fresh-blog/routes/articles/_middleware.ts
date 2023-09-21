@@ -1,5 +1,5 @@
 import { MiddlewareHandlerContext } from "$fresh/server.ts";
-import { CheckSession } from "../util/auth.tsx";
+import { CheckSession } from "../../util/auth.tsx";
 import {
   getCookies,
   setCookie,
