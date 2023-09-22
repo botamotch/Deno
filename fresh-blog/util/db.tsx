@@ -16,9 +16,8 @@ const client = new Client({
   port: Deno.env.get("DB_PORT"),
 });
 
-await client.connect();
-
 export const findAllArticles = async () => {
+  await client.connect();
   try {
     const result = await client.queryObject<Article>(
       "SELECT * FROM articles ORDER BY created_at DESC",
@@ -31,6 +30,7 @@ export const findAllArticles = async () => {
 };
 
 export const findArticleById = async (id: string) => {
+  await client.connect();
   try {
     const result = await client.queryObject<Article>(
       "SELECT * FROM articles WHERE id = $1",
@@ -47,6 +47,7 @@ export const findArticleById = async (id: string) => {
 };
 
 export const createArticle = async (title: string, content: string) => {
+  await client.connect();
   try {
     const result = await client.queryObject<Article>(
       "INSERT INTO articles (title, content) VALUES ($1, $2) RETURNING *",
@@ -64,6 +65,7 @@ export const updateArticle = async (
   title: string,
   content: string,
 ) => {
+  await client.connect();
   try {
     const result = await client.queryObject<Article>(
       "UPDATE articles (title, content) VALUES ($1, $2) WHERE id = $3 RETURNING",

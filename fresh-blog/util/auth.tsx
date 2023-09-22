@@ -9,6 +9,14 @@ export interface Session {
   refresh_token?: string;
 }
 
+export interface Article {
+  id: string;
+  title: string;
+  content: string;
+  contentRenderd?: string;
+  created_at: Date;
+}
+
 const supabaseKey = Deno.env.get("SUPABASE_KEY")!;
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 
@@ -49,43 +57,17 @@ export async function CheckSession(
   }
 
   init();
-  // 1. getUser
-  const resGetUser = await supabase.auth.getUser(access_token);
-  if (!resGetUser.error) {
-    console.log("### getUser Success");
-    console.log(`refresh_token : ${refresh_token}`);
-    console.log(`access_token : ${access_token}`);
-    return {
-      is_login: true,
-      refresh_token: refresh_token,
-      access_token: access_token,
-    };
-  }
-
-  // 2. refreshSession
-  const resRefreshSession = await supabase.auth.refreshSession({
+  const resSetSession = await supabase.auth.setSession({
+    access_token: access_token,
     refresh_token: refresh_token,
   });
-  if (!resRefreshSession.error) {
-    console.log("### refreshSession Success");
-    console.log(
-      `refresh_token : ${resRefreshSession.data.session!.refresh_token}`,
-    );
-    console.log(
-      `access_token : ${resRefreshSession.data.session!.access_token}`,
-    );
+  if (!resSetSession.error) {
     return {
       is_login: true,
-      refresh_token: resRefreshSession.data.session!.refresh_token,
-      access_token: resRefreshSession.data.session!.access_token,
+      refresh_token: resSetSession.data.session?.refresh_token,
+      access_token: resSetSession.data.session?.access_token,
     };
   }
-
-  // 3. error, redirect to top
-  console.log(
-    `### getUser Failed, [${resRefreshSession.error.status} ${resRefreshSession.error.name}] ${resRefreshSession.error.message}`,
-  );
-  console.log(`access_token : ${access_token}`);
 
   return { is_login: false };
 }
