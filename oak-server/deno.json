@@ -1,0 +1,16 @@
+{
+    "tasks": {
+        "main": "deno run -A src/main.ts",
+        "server": "deno run -A --watch=src src/server.ts"
+    },
+    "imports": {
+      "@/": "./",
+      "$std/": "https://deno.land/std@0.203.0/",
+      "$oak/": "https://deno.land/x/oak@v12.6.1/",
+      "$postgres/": "https://deno.land/x/postgres@v0.17.0/",
+      "$supabase-js": "https://esm.sh/@supabase/supabase-js@2.33.2"
+    },
+    "fmt": {
+        "lineWidth": 200
+    }
+}
