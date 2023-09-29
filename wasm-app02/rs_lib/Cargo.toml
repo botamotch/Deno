@@ -20,5 +20,6 @@ chrono = "0.4.31"
 [dependencies.web-sys]
 version = "0.3"
 features = [
-  "console", "Window", "Document", "HtmlCanvasElement", "CanvasRenderingContext2d", "Element", "HtmlImageElement", "Response", "Performance"
+  "console", "Window", "Document", "HtmlCanvasElement", "CanvasRenderingContext2d",
+  "Element", "HtmlImageElement", "Response", "Performance", "KeyboardEvent"
 ]
