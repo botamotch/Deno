@@ -1,7 +1,7 @@
 // @generated file from wasmbuild -- do not edit
 // deno-lint-ignore-file
 // deno-fmt-ignore-file
-// source-hash: 9e4ddcfce064a6bfed925eab8eb451ea02c0993c
+// source-hash: 508a779ba80749a33d83acda7c0825be8f916968
 let wasm;
 
 const heap = new Array(128).fill(undefined);
@@ -225,22 +225,22 @@ function makeMutClosure(arg0, arg1, dtor, f) {
   CLOSURE_DTORS.register(real, state, state);
   return real;
 }
-function __wbg_adapter_34(arg0, arg1, arg2) {
-  wasm.wasm_bindgen__convert__closures__invoke1_mut__hb77467b8dbc9d9ff(
+function __wbg_adapter_36(arg0, arg1, arg2) {
+  wasm.wasm_bindgen__convert__closures__invoke1_mut__h3068e334f23fff57(
     arg0,
     arg1,
     arg2,
   );
 }
 
-function __wbg_adapter_37(arg0, arg1) {
-  wasm.wasm_bindgen__convert__closures__invoke0_mut__hb47cb5729b92d185(
+function __wbg_adapter_39(arg0, arg1) {
+  wasm.wasm_bindgen__convert__closures__invoke0_mut__h90fbb9a8045fcdb7(
     arg0,
     arg1,
   );
 }
 
-function __wbg_adapter_40(arg0, arg1, arg2) {
+function __wbg_adapter_42(arg0, arg1, arg2) {
   wasm.wasm_bindgen__convert__closures__invoke1_mut__h82db387238a0eb1c(
     arg0,
     arg1,
@@ -261,6 +261,11 @@ export function main() {
 export function add(a, b) {
   const ret = wasm.add(a, b);
   return ret;
+}
+
+/** */
+export function hello() {
+  wasm.hello();
 }
 
 function handleError(f, args) {
@@ -495,6 +500,26 @@ const imports = {
         arguments,
       );
     },
+    __wbg_new0_c0be7df4b6bd481f: function () {
+      const ret = new Date();
+      return addHeapObject(ret);
+    },
+    __wbg_getTime_5e2054f832d82ec9: function (arg0) {
+      const ret = getObject(arg0).getTime();
+      return ret;
+    },
+    __wbindgen_number_new: function (arg0) {
+      const ret = arg0;
+      return addHeapObject(ret);
+    },
+    __wbg_new_cd59bfc8881f487b: function (arg0) {
+      const ret = new Date(getObject(arg0));
+      return addHeapObject(ret);
+    },
+    __wbg_getTimezoneOffset_8aee3445f323973e: function (arg0) {
+      const ret = getObject(arg0).getTimezoneOffset();
+      return ret;
+    },
     __wbindgen_is_function: function (arg0) {
       const ret = typeof (getObject(arg0)) === "function";
       return ret;
@@ -617,16 +642,16 @@ const imports = {
       const ret = Promise.resolve(getObject(arg0));
       return addHeapObject(ret);
     },
-    __wbindgen_closure_wrapper100: function (arg0, arg1, arg2) {
-      const ret = makeMutClosure(arg0, arg1, 11, __wbg_adapter_34);
+    __wbindgen_closure_wrapper105: function (arg0, arg1, arg2) {
+      const ret = makeMutClosure(arg0, arg1, 11, __wbg_adapter_36);
       return addHeapObject(ret);
     },
-    __wbindgen_closure_wrapper157: function (arg0, arg1, arg2) {
-      const ret = makeMutClosure(arg0, arg1, 11, __wbg_adapter_37);
+    __wbindgen_closure_wrapper162: function (arg0, arg1, arg2) {
+      const ret = makeMutClosure(arg0, arg1, 11, __wbg_adapter_39);
       return addHeapObject(ret);
     },
-    __wbindgen_closure_wrapper158: function (arg0, arg1, arg2) {
-      const ret = makeMutClosure(arg0, arg1, 11, __wbg_adapter_40);
+    __wbindgen_closure_wrapper163: function (arg0, arg1, arg2) {
+      const ret = makeMutClosure(arg0, arg1, 11, __wbg_adapter_42);
       return addHeapObject(ret);
     },
   },
@@ -670,7 +695,7 @@ export async function instantiate(opts) {
  * @param {InstantiateOptions=} opts
  * @returns {Promise<{
  *   instance: WebAssembly.Instance;
- *   exports: { main: typeof main; add: typeof add }
+ *   exports: { main: typeof main; add: typeof add; hello: typeof hello }
  * }>}
  */
 export async function instantiateWithInstance(opts) {
@@ -688,7 +713,7 @@ export async function instantiateWithInstance(opts) {
 }
 
 function getWasmInstanceExports() {
-  return { main, add };
+  return { main, add, hello };
 }
 
 /** Gets if the Wasm module has been instantiated. */

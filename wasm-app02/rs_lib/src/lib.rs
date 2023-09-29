@@ -1,3 +1,4 @@
+use chrono::Local;
 use browser::{canvas, spawn_local};
 use engine::GameLoop;
 use game::WalkTheDog;
@@ -8,19 +9,6 @@ mod browser;
 mod engine;
 mod game;
 mod test;
-
-// #[allow(dead_code)]
-// async fn fetch_json(json_path: &str) -> Result<JsValue, JsValue> {
-//   // JavaScriptで書くとこんな感じ？
-//   // (await window.fetch(json_path)).json();
-//   let window = web_sys::window().unwrap();
-//   let resp_value =
-//     wasm_bindgen_futures::JsFuture::from(window.fetch_with_str(json_path))
-//       .await?;
-//   let resp: web_sys::Response = resp_value.dyn_into()?;
-// 
-//   wasm_bindgen_futures::JsFuture::from(resp.json()?).await
-// }
 
 #[wasm_bindgen]
 pub fn main() {
@@ -44,6 +32,11 @@ pub fn main() {
 pub fn add(a: i32, b: i32) -> i32 {
   console::log_1(&JsValue::from_str("Hello World from wasm!"));
   return a + b;
+}
+
+#[wasm_bindgen]
+pub fn hello() {
+  console::log_1(&JsValue::from_str(&format!("Hello World from wasm! : {}", Local::now())));
 }
 
 #[cfg(test)]
