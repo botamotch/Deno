@@ -65,6 +65,8 @@ pub async fn fetch_with_str(resource: &str) -> Result<JsValue> {
 }
 
 pub async fn fetch_json(json_path: &str) -> Result<JsValue> {
+  // JavaScriptで書くとこんな感じ？
+  // (await window.fetch(json_path)).json();
   let resp_value = fetch_with_str(json_path).await?;
   let resp: Response = resp_value.dyn_into().map_err(|element| {
     anyhow!("Error converting {:#?} to Response", element)
