@@ -97,25 +97,39 @@ impl Game for WalkTheDog {
   }
 
   fn update(&mut self, keystate: &KeyState) {
+    const SPEED_WALK: i16 = 5;
     let mut velocity = Point { x: 0, y: 0 };
     if keystate.is_pressed("ArrowDown") {
-      velocity.y += 3;
+      velocity.y += SPEED_WALK;
     }
 
     if keystate.is_pressed("ArrowUp") {
-      velocity.y -= 3;
+      velocity.y -= SPEED_WALK;
     }
 
     if keystate.is_pressed("ArrowRight") {
-      velocity.x += 3;
+      velocity.x += SPEED_WALK;
     }
 
     if keystate.is_pressed("ArrowLeft") {
-      velocity.x -= 3;
+      velocity.x -= 5;
     }
 
-    self.position.x += velocity.x;
-    self.position.y += velocity.y;
+    if self.position.x > 600 {
+      self.position.x = 0;
+    } else if self.position.x < 0 {
+      self.position.x = 600;
+    } else {
+      self.position.x += velocity.x;
+    }
+
+    if self.position.y > 600 {
+      self.position.y = 0;
+    } else if self.position.y < 0 {
+      self.position.y = 600;
+    } else {
+      self.position.y += velocity.y;
+    }
 
     if self.frame < 23 {
       self.frame += 1;
