@@ -18,5 +18,9 @@ app.use(async (ctx, next) => {
 
 app.use(router.routes());
 
+const PORT = 8000;
+
+console.log(`Listening on http://localhost:${PORT}/`);
+
 // await app.listen({ port: 8080, certFile: "../server.csr", keyFile: "../server.key" });
-await app.listen({ port: 8000 });
+await app.listen({ port: PORT });

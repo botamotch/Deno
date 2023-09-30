@@ -3,6 +3,7 @@ import { Router } from "$oak/mod.ts";
 import * as BookController from "@/src/controller/BookController.ts";
 import * as TestController from "@/src/controller/TestController.ts";
 import * as AuthController from "@/src/controller/AuthController.ts";
+import * as TableController from "@/src/controller/TableController.ts";
 
 export const router = new Router();
 
@@ -14,4 +15,6 @@ router
   .get("/auth/signin", AuthController.SignIn)
   .get("/auth/getuser", AuthController.SetSettion)
   .get("/book", BookController.getAllbooks)
-  .get("/book/:id", BookController.getBookById);
+  .get("/book/:id", BookController.getBookById)
+  .get("/table/articles", TableController.SelectArticles)
+  ;

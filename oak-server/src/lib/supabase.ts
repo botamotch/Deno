@@ -1,5 +1,6 @@
 import { load } from "$std/dotenv/mod.ts";
 import { createClient, SupabaseClient } from "$supabase-js";
+import { Database } from "@/src/lib/schema.ts";
 
 await load({ export: true });
 
@@ -8,10 +9,10 @@ const supabaseUrl = Deno.env.get("SUPABASE_URL");
 const supabaseUsername = Deno.env.get("SUPABASE_USERNAME");
 const supabasePassword = Deno.env.get("SUPABASE_PASSWORD");
 
-let supabase: SupabaseClient;
+let supabase: SupabaseClient<Database>;
 
 function init() {
-  supabase = createClient(supabaseUrl!, supabaseKey!, {
+  supabase = createClient<Database>(supabaseUrl!, supabaseKey!, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
@@ -41,4 +42,11 @@ export async function SetSession(access_token: string, refresh_token: string) {
 export async function GetUser(access_token: string) {
   init();
   return await supabase.auth.getUser(access_token);
+}
+
+export async function SelectArticles() {
+  init();
+  return await supabase
+    .from("articles")
+    .select("*");
 }
