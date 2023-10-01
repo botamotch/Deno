@@ -1,7 +1,7 @@
 // @generated file from wasmbuild -- do not edit
 // deno-lint-ignore-file
 // deno-fmt-ignore-file
-// source-hash: b89eb61361c1ef2a794c210b83dde14c022674d0
+// source-hash: a8d08ab1132740a9c62c36986a85578f737747c6
 let wasm;
 
 const heap = new Array(128).fill(undefined);
@@ -226,7 +226,7 @@ function makeMutClosure(arg0, arg1, dtor, f) {
   return real;
 }
 function __wbg_adapter_36(arg0, arg1, arg2) {
-  wasm.wasm_bindgen__convert__closures__invoke1_mut__h09e19d28f9880b84(
+  wasm.wasm_bindgen__convert__closures__invoke1_mut__h1df0946c0a5b3c0a(
     arg0,
     arg1,
     addHeapObject(arg2),
@@ -234,7 +234,7 @@ function __wbg_adapter_36(arg0, arg1, arg2) {
 }
 
 function __wbg_adapter_39(arg0, arg1, arg2) {
-  wasm.wasm_bindgen__convert__closures__invoke1_mut__h895175c5ca1235a4(
+  wasm.wasm_bindgen__convert__closures__invoke1_mut__h72f51727a4ecb94b(
     arg0,
     arg1,
     arg2,
@@ -242,7 +242,7 @@ function __wbg_adapter_39(arg0, arg1, arg2) {
 }
 
 function __wbg_adapter_42(arg0, arg1) {
-  wasm.wasm_bindgen__convert__closures__invoke0_mut__he1393ff620effde1(
+  wasm.wasm_bindgen__convert__closures__invoke0_mut__h4de366b21351b188(
     arg0,
     arg1,
   );
@@ -481,6 +481,10 @@ const imports = {
       getInt32Memory0()[arg0 / 4 + 1] = len1;
       getInt32Memory0()[arg0 / 4 + 0] = ptr1;
     },
+    __wbg_isSafeInteger_bb8e18dd21c97288: function (arg0) {
+      const ret = Number.isSafeInteger(getObject(arg0));
+      return ret;
+    },
     __wbg_clearRect_517d3360d8be8a55: function (arg0, arg1, arg2, arg3, arg4) {
       getObject(arg0).clearRect(arg1, arg2, arg3, arg4);
     },
@@ -501,10 +505,6 @@ const imports = {
         },
         arguments,
       );
-    },
-    __wbg_isSafeInteger_bb8e18dd21c97288: function (arg0) {
-      const ret = Number.isSafeInteger(getObject(arg0));
-      return ret;
     },
     __wbg_new0_c0be7df4b6bd481f: function () {
       const ret = new Date();
@@ -659,20 +659,20 @@ const imports = {
       getInt32Memory0()[arg0 / 4 + 1] = len1;
       getInt32Memory0()[arg0 / 4 + 0] = ptr1;
     },
-    __wbindgen_closure_wrapper231: function (arg0, arg1, arg2) {
-      const ret = makeMutClosure(arg0, arg1, 20, __wbg_adapter_36);
+    __wbindgen_closure_wrapper104: function (arg0, arg1, arg2) {
+      const ret = makeMutClosure(arg0, arg1, 12, __wbg_adapter_36);
       return addHeapObject(ret);
     },
-    __wbindgen_closure_wrapper241: function (arg0, arg1, arg2) {
-      const ret = makeMutClosure(arg0, arg1, 20, __wbg_adapter_39);
+    __wbindgen_closure_wrapper115: function (arg0, arg1, arg2) {
+      const ret = makeMutClosure(arg0, arg1, 12, __wbg_adapter_39);
       return addHeapObject(ret);
     },
-    __wbindgen_closure_wrapper326: function (arg0, arg1, arg2) {
-      const ret = makeMutClosure(arg0, arg1, 20, __wbg_adapter_42);
+    __wbindgen_closure_wrapper201: function (arg0, arg1, arg2) {
+      const ret = makeMutClosure(arg0, arg1, 12, __wbg_adapter_42);
       return addHeapObject(ret);
     },
-    __wbindgen_closure_wrapper327: function (arg0, arg1, arg2) {
-      const ret = makeMutClosure(arg0, arg1, 20, __wbg_adapter_36);
+    __wbindgen_closure_wrapper202: function (arg0, arg1, arg2) {
+      const ret = makeMutClosure(arg0, arg1, 12, __wbg_adapter_36);
       return addHeapObject(ret);
     },
   },
