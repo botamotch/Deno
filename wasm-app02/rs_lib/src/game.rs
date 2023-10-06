@@ -27,30 +27,38 @@ pub struct Sheet {
   frames: HashMap<String, Cell>,
 }
 
-pub struct WalkTheDog {
-  rhb: Option<red_hat_boy::RedHatBoy>,
+pub enum WalkTheDog {
+  Loading,
+  Loaded(red_hat_boy::RedHatBoy),
 }
 
 impl WalkTheDog {
   pub fn new() -> Self {
-    WalkTheDog { rhb: None }
+    WalkTheDog::Loading
   }
 }
 
 #[async_trait(?Send)]
 impl Game for WalkTheDog {
   async fn initilalize(&self) -> Result<Box<dyn Game>> {
-    let sheet: Sheet = from_value(browser::fetch_json("rhb.json").await?)
-      .expect("Could not convert rhb.json into a Sheet structure");
-    let sheet: Option<Sheet> = Some(sheet);
-    let image = Some(engine::load_image("rhb.png").await?);
+    match self {
+      WalkTheDog::Loading => {
+        let sheet: Sheet = from_value(browser::fetch_json("rhb.json").await?)
+          .expect("Could not convert rhb.json into a Sheet structure");
+        let sheet: Option<Sheet> = Some(sheet);
+        let image = Some(engine::load_image("rhb.png").await?);
 
-    Ok(Box::new(WalkTheDog {
-      rhb: Some(red_hat_boy::RedHatBoy::new(
-        sheet.clone().ok_or_else(|| anyhow!("No Sheet Present"))?,
-        image.clone().ok_or_else(|| anyhow!("No Image Present"))?,
-      )),
-    }))
+        let rhb = red_hat_boy::RedHatBoy::new(
+          sheet.clone().ok_or_else(|| anyhow!("No Sheet Present"))?,
+          image.clone().ok_or_else(|| anyhow!("No Image Present"))?,
+        );
+
+        Ok(Box::new(WalkTheDog::Loaded(rhb)))
+      }
+      WalkTheDog::Loaded(_) => {
+        Err(anyhow!("Error: Game is already initilalized!"))
+      }
+    }
   }
   fn draw(&self, renderer: &Renderer) {
     renderer.clear(&Rect {
@@ -60,19 +68,23 @@ impl Game for WalkTheDog {
       height: 600.0,
     });
 
-    self.rhb.as_ref().unwrap().draw(renderer);
+    if let WalkTheDog::Loaded(rhb) = self {
+      rhb.draw(renderer);
+    }
   }
 
   fn update(&mut self, keystate: &KeyState) {
-    if keystate.is_pressed("ArrowDown") {
-      self.rhb.as_mut().unwrap().slide();
-    }
+    if let WalkTheDog::Loaded(rhb) = self {
+      if keystate.is_pressed("ArrowDown") {
+        rhb.slide();
+      }
 
-    if keystate.is_pressed("ArrowRight") {
-      self.rhb.as_mut().unwrap().run_right();
-    }
+      if keystate.is_pressed("ArrowRight") {
+        rhb.run_right();
+      }
 
-    self.rhb.as_mut().unwrap().update();
+      rhb.update();
+    }
   }
 }
 
