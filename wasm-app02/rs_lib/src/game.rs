@@ -107,6 +107,8 @@ mod red_hat_boy {
   const FRAMES_SLIDING: u8 = 14;
   const FRAMES_JUMPING: u8 = 35;
   const RUNNING_SPEED: i16 = 5;
+  const JUMP_SPEED: i16 = -25;
+  const GRAVITY: i16 = 1;
 
   pub struct RedHatBoy {
     state: RedHatBoyStateMachine,
@@ -266,6 +268,15 @@ mod red_hat_boy {
     }
   }
 
+  impl From<JumpingEndState> for RedHatBoyStateMachine {
+    fn from (end_state: JumpingEndState) -> Self {
+      match end_state {
+        JumpingEndState::Complete(running_state) => running_state.into(),
+        JumpingEndState::Jumping(jumping_state) => jumping_state.into(),
+      }
+    }
+  }
+
   #[derive(Copy, Clone)]
   struct Idle;
 
@@ -304,8 +315,12 @@ mod red_hat_boy {
       } else {
         self.frame = 0;
       }
+      self.velocity.y += GRAVITY;
       self.position.x += self.velocity.x;
       self.position.y += self.velocity.y;
+      if self.position.y > FLOOR {
+        self.position.y = FLOOR;
+      }
       self
     }
 
@@ -316,6 +331,11 @@ mod red_hat_boy {
 
     fn run_right(mut self) -> Self {
       self.velocity.x += RUNNING_SPEED;
+      self
+    }
+
+    fn set_vertical_velocity(mut self, y: i16) -> Self {
+      self.velocity.y = y;
       self
     }
   }
@@ -368,7 +388,7 @@ mod red_hat_boy {
 
     pub fn jump(self) -> RedHatBoyState<Jumping> {
       RedHatBoyState {
-        context: self.context.reset_frame(),
+        context: self.context.set_vertical_velocity(JUMP_SPEED).reset_frame(),
         _state: Jumping {},
       }
     }
@@ -402,14 +422,30 @@ mod red_hat_boy {
     }
   }
 
+  enum JumpingEndState {
+    Complete(RedHatBoyState<Running>),
+    Jumping(RedHatBoyState<Jumping>),
+  }
+
   impl RedHatBoyState<Jumping> {
     fn frame_name(&self) -> &str {
       FRAME_NAME_JUMPING
     }
 
-    pub fn update(mut self) -> Self {
+    pub fn land(self) -> RedHatBoyState<Running> {
+      RedHatBoyState {
+        context: self.context.reset_frame(),
+        _state: Running,
+      }
+    }
+
+    pub fn update(mut self) -> JumpingEndState {
       self.context = self.context.update(FRAMES_JUMPING);
-      self
+      if self.context.position.y >= FLOOR {
+        JumpingEndState::Complete(self.land())
+      } else {
+        JumpingEndState::Jumping(self)
+      }
     }
   }
 }
