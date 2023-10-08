@@ -16,6 +16,36 @@ pub struct Point {
   pub y: i16,
 }
 
+pub struct Image {
+  element: HtmlImageElement,
+  position: Point,
+  bounding_box: Rect,
+}
+
+impl Image {
+  pub fn new(element: HtmlImageElement, position: Point) -> Self {
+    let bounding_box = Rect {
+      x: position.x.into(),
+      y: position.y.into(),
+      height: element.height() as f32,
+      width: element.width() as f32,
+    };
+    Self {
+      element,
+      position,
+      bounding_box,
+    }
+  }
+
+  pub fn draw(&self, renderer: &Renderer) {
+    renderer.draw_entire_image(&self.element, &self.position)
+  }
+
+  pub fn bounding_box(&self) -> &Rect {
+    &self.bounding_box
+  }
+}
+
 pub async fn load_image(source: &str) -> Result<HtmlImageElement> {
   let image = browser::new_image()?;
   let (complete_tx, complete_rx) =
@@ -45,6 +75,10 @@ pub async fn load_image(source: &str) -> Result<HtmlImageElement> {
 
   complete_rx.await??;
 
+  // Ok(Image {
+  //   element: image,
+  //   position: Point {x: 0, y: 0},
+  // })
   Ok(image)
 }
 
@@ -113,6 +147,15 @@ pub struct Rect {
   pub height: f32,
 }
 
+impl Rect {
+  pub fn intersects(&self, rect: &Rect) -> bool {
+    self.x < (rect.x + rect.width)
+      && (self.x + self.width) > rect.x
+      && self.y < (rect.y + rect.height)
+      && (self.y + self.height) > rect.y
+  }
+}
+
 impl Renderer {
   pub fn clear(&self, rect: &Rect) {
     self.context.clear_rect(
@@ -142,6 +185,17 @@ impl Renderer {
         destination.height.into(),
       )
       .expect("Drawing is throwing expections!");
+  }
+
+  pub fn draw_entire_image(&self, image: &HtmlImageElement, position: &Point) {
+    self
+      .context
+      .draw_image_with_html_image_element(
+        image,
+        position.x.into(),
+        position.y.into(),
+      )
+      .expect("Drawing is throwing expections! Unrecoverable error.");
   }
 }
 
