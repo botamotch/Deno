@@ -1,34 +1,13 @@
 use anyhow::anyhow;
 use anyhow::Result;
 use async_trait::async_trait;
-use serde::Deserialize;
 use serde_wasm_bindgen::from_value;
-use std::collections::HashMap;
 
 use crate::browser;
 
 use crate::engine;
+use crate::engine::Sheet;
 use crate::engine::{Game, Image, KeyState, Point, Rect, Renderer};
-
-#[derive(Deserialize, Clone)]
-struct SheetRect {
-  x: i16,
-  y: i16,
-  w: i16,
-  h: i16,
-}
-
-#[derive(Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-struct Cell {
-  frame: SheetRect,
-  sprite_source_size: SheetRect,
-}
-
-#[derive(Deserialize, Clone)]
-pub struct Sheet {
-  frames: HashMap<String, Cell>,
-}
 
 pub enum WalkTheDog {
   Loading,
@@ -117,8 +96,8 @@ impl Game for WalkTheDog {
 }
 
 mod red_hat_boy {
-  use super::{Cell, Sheet};
-  use crate::engine::{Point, Rect, Renderer};
+  use super::Sheet;
+  use crate::engine::{Cell, Point, Rect, Renderer};
   use web_sys::HtmlImageElement;
 
   const FLOOR: i16 = 479;
@@ -269,9 +248,7 @@ mod red_hat_boy {
         (RedHatBoyStateMachine::Falling(state), Event::Update) => {
           state.update().into()
         }
-        (RedHatBoyStateMachine::KnockedOut(_), Event::Update) => {
-          self
-        }
+        (RedHatBoyStateMachine::KnockedOut(_), Event::Update) => self,
         _ => self,
       }
     }

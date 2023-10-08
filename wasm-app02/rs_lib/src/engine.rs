@@ -2,9 +2,11 @@ use crate::browser::LoopClosure;
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use futures::channel::mpsc::{unbounded, UnboundedReceiver};
+use serde::Deserialize;
+use std::cell::RefCell;
+use std::collections::HashMap;
 use std::rc::Rc;
 use std::sync::Mutex;
-use std::{cell::RefCell, collections::HashMap};
 use wasm_bindgen::prelude::*;
 use web_sys::{CanvasRenderingContext2d, HtmlImageElement};
 
@@ -14,6 +16,26 @@ use crate::browser;
 pub struct Point {
   pub x: i16,
   pub y: i16,
+}
+
+#[derive(Deserialize, Clone)]
+pub struct SheetRect {
+  pub x: i16,
+  pub y: i16,
+  pub w: i16,
+  pub h: i16,
+}
+
+#[derive(Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct Cell {
+  pub frame: SheetRect,
+  pub sprite_source_size: SheetRect,
+}
+
+#[derive(Deserialize, Clone)]
+pub struct Sheet {
+  pub frames: HashMap<String, Cell>,
 }
 
 pub struct Image {
