@@ -4,10 +4,12 @@ use async_trait::async_trait;
 use serde_wasm_bindgen::from_value;
 
 use crate::browser;
-
 use crate::engine;
 use crate::engine::Sheet;
 use crate::engine::{Game, Image, KeyState, Point, Rect, Renderer};
+
+use self::red_hat_boy::Platform;
+use self::red_hat_boy::RedHatBoy;
 
 pub enum WalkTheDog {
   Loading,
@@ -15,9 +17,10 @@ pub enum WalkTheDog {
 }
 
 pub struct Walk {
-  boy: red_hat_boy::RedHatBoy,
+  boy: RedHatBoy,
   background: Image,
   stone: Image,
+  platform: Platform,
 }
 
 impl WalkTheDog {
@@ -43,10 +46,20 @@ impl Game for WalkTheDog {
           image.clone().ok_or_else(|| anyhow!("No Image Present"))?,
         );
 
+        let platform_sheet =
+          from_value(browser::fetch_json("tiles.json").await?)
+            .expect("Could not convert tiles.json into a Sheet structure");
+        let platform = Platform::new(
+          platform_sheet,
+          engine::load_image("tiles.png").await?,
+          Point { x: 200, y: 400 },
+        );
+
         Ok(Box::new(WalkTheDog::Loaded(Walk {
           boy: rhb,
           background: Image::new(background, Point { x: 0, y: 0 }),
           stone: Image::new(stone, Point { x: 350, y: 546 }),
+          platform,
         })))
       }
       WalkTheDog::Loaded(_) => {
@@ -66,6 +79,7 @@ impl Game for WalkTheDog {
       walk.background.draw(renderer);
       walk.boy.draw(renderer);
       walk.stone.draw(renderer);
+      walk.platform.draw(renderer);
     }
   }
 
@@ -581,6 +595,56 @@ mod red_hat_boy {
   impl RedHatBoyState<KnockedOut> {
     fn frame_name(&self) -> &str {
       FRAME_NAME_FALLING
+    }
+  }
+
+  pub struct Platform {
+    sheet: Sheet,
+    image: HtmlImageElement,
+    position: Point,
+  }
+
+  impl Platform {
+    pub fn new(sheet: Sheet, image: HtmlImageElement, position: Point) -> Self {
+      Platform {
+        sheet,
+        image,
+        position,
+      }
+    }
+
+    pub fn draw(&self, renderer: &Renderer) {
+      let platform = self
+        .sheet
+        .frames
+        .get("13.png")
+        .expect("13.png does not found");
+
+      renderer.draw_image(
+        &self.image,
+        &Rect {
+          x: platform.frame.x.into(),
+          y: platform.frame.y.into(),
+          width: (platform.frame.w * 3).into(),
+          height: platform.frame.h.into(),
+        },
+        &self.bounding_box(),
+      );
+    }
+
+    fn bounding_box(&self) -> Rect {
+      let platform = self
+        .sheet
+        .frames
+        .get("13.png")
+        .expect("13.png does not found");
+
+      Rect {
+        x: self.position.x.into(),
+        y: self.position.y.into(),
+        width: (platform.frame.w * 3).into(),
+        height: platform.frame.h.into(),
+      }
     }
   }
 }

@@ -1,7 +1,7 @@
 // @generated file from wasmbuild -- do not edit
 // deno-lint-ignore-file
 // deno-fmt-ignore-file
-// source-hash: 708b83fb38cd40b3e697e2ded3b762c0f3198b54
+// source-hash: b0563fe635d2c211d6b15c415babae2c77590f25
 let wasm;
 
 const heap = new Array(128).fill(undefined);
@@ -375,6 +375,21 @@ const imports = {
         return ret;
       }, arguments);
     },
+    __wbg_new_6f9cb260fad32a20: function () {
+      return handleError(function () {
+        const ret = new Image();
+        return addHeapObject(ret);
+      }, arguments);
+    },
+    __wbg_setonload_b4f5d9b15b0ee9d3: function (arg0, arg1) {
+      getObject(arg0).onload = getObject(arg1);
+    },
+    __wbg_setonerror_acddd28c276005c1: function (arg0, arg1) {
+      getObject(arg0).onerror = getObject(arg1);
+    },
+    __wbg_setsrc_fac5b9516fc69301: function (arg0, arg1, arg2) {
+      getObject(arg0).src = getStringFromWasm0(arg1, arg2);
+    },
     __wbg_fetch_25c13b73a41a6660: function (arg0, arg1, arg2) {
       const ret = getObject(arg0).fetch(getStringFromWasm0(arg1, arg2));
       return addHeapObject(ret);
@@ -444,20 +459,13 @@ const imports = {
       const ret = getObject(arg0)[arg1 >>> 0];
       return addHeapObject(ret);
     },
-    __wbg_new_6f9cb260fad32a20: function () {
-      return handleError(function () {
-        const ret = new Image();
-        return addHeapObject(ret);
-      }, arguments);
+    __wbg_height_5ee3e7570341fe45: function (arg0) {
+      const ret = getObject(arg0).height;
+      return ret;
     },
-    __wbg_setonload_b4f5d9b15b0ee9d3: function (arg0, arg1) {
-      getObject(arg0).onload = getObject(arg1);
-    },
-    __wbg_setonerror_acddd28c276005c1: function (arg0, arg1) {
-      getObject(arg0).onerror = getObject(arg1);
-    },
-    __wbg_setsrc_fac5b9516fc69301: function (arg0, arg1, arg2) {
-      getObject(arg0).src = getStringFromWasm0(arg1, arg2);
+    __wbg_width_e64ae54f1609bb76: function (arg0) {
+      const ret = getObject(arg0).width;
+      return ret;
     },
     __wbindgen_is_undefined: function (arg0) {
       const ret = getObject(arg0) === undefined;
@@ -481,20 +489,17 @@ const imports = {
       getInt32Memory0()[arg0 / 4 + 1] = len1;
       getInt32Memory0()[arg0 / 4 + 0] = ptr1;
     },
-    __wbg_height_5ee3e7570341fe45: function (arg0) {
-      const ret = getObject(arg0).height;
-      return ret;
-    },
-    __wbg_width_e64ae54f1609bb76: function (arg0) {
-      const ret = getObject(arg0).width;
-      return ret;
-    },
     __wbg_isSafeInteger_bb8e18dd21c97288: function (arg0) {
       const ret = Number.isSafeInteger(getObject(arg0));
       return ret;
     },
     __wbg_clearRect_517d3360d8be8a55: function (arg0, arg1, arg2, arg3, arg4) {
       getObject(arg0).clearRect(arg1, arg2, arg3, arg4);
+    },
+    __wbg_drawImage_9758fa4c03ab8fc8: function () {
+      return handleError(function (arg0, arg1, arg2, arg3) {
+        getObject(arg0).drawImage(getObject(arg1), arg2, arg3);
+      }, arguments);
     },
     __wbg_drawImage_f647065c8b6c6c44: function () {
       return handleError(
@@ -513,11 +518,6 @@ const imports = {
         },
         arguments,
       );
-    },
-    __wbg_drawImage_9758fa4c03ab8fc8: function () {
-      return handleError(function (arg0, arg1, arg2, arg3) {
-        getObject(arg0).drawImage(getObject(arg1), arg2, arg3);
-      }, arguments);
     },
     __wbg_new0_c0be7df4b6bd481f: function () {
       const ret = new Date();
@@ -680,11 +680,11 @@ const imports = {
       const ret = makeMutClosure(arg0, arg1, 12, __wbg_adapter_39);
       return addHeapObject(ret);
     },
-    __wbindgen_closure_wrapper211: function (arg0, arg1, arg2) {
+    __wbindgen_closure_wrapper193: function (arg0, arg1, arg2) {
       const ret = makeMutClosure(arg0, arg1, 12, __wbg_adapter_42);
       return addHeapObject(ret);
     },
-    __wbindgen_closure_wrapper1050: function (arg0, arg1, arg2) {
+    __wbindgen_closure_wrapper1058: function (arg0, arg1, arg2) {
       const ret = makeMutClosure(arg0, arg1, 12, __wbg_adapter_36);
       return addHeapObject(ret);
     },
