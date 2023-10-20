@@ -1,4 +1,5 @@
 import { Head } from "$fresh/runtime.ts";
+import Game from "@/islands/Game.tsx";
 import Nav from "@/islands/Navigation.tsx";
 import Header from "@/islands/Header.tsx";
 import Footer from "@/islands/Footer.tsx";
@@ -7,9 +8,9 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Home</title>
+        <title>Ch.1 Hello WebAssembly</title>
       </Head>
-      <div class="h-screen flex-col">
+      <div class="h-screen">
         <Header />
         <div class="flex flex-1 flex-row">
           <main class="flex-1 bg-white p-4">
@@ -22,8 +23,9 @@ export default function Home() {
               </a>
             </h1>
             <p class="mt-6 text-base leading-7 text-gray-600">
-              Home
+              Chapter1 Hello WebAssembly
             </p>
+            <Game />
             <Footer />
           </main>
           <Nav />
