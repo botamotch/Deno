@@ -2,6 +2,7 @@ import { Head } from "$fresh/runtime.ts";
 import Nav from "@/islands/Navigation.tsx";
 import Header from "@/islands/Header.tsx";
 import Footer from "@/islands/Footer.tsx";
+import Button from "@/islands/Button.tsx";
 
 export default function Home() {
   return (
@@ -24,6 +25,9 @@ export default function Home() {
             <p class="mt-6 text-base leading-7 text-gray-600">
               Home
             </p>
+            <div class="text-center">
+              <Button />
+            </div>
             <Footer />
           </main>
           <Nav />
