@@ -73,7 +73,7 @@ impl Game for WalkTheDog {
     renderer.clear(&Rect {
       x: 0.0,
       y: 0.0,
-      width: 600.0,
+      width: 1000.0,
       height: 600.0,
     });
 
@@ -101,12 +101,16 @@ impl Game for WalkTheDog {
 
       walk.boy.update();
 
-      if walk
-        .boy
-        .bounding_box()
-        .intersects(&walk.platform.bounding_box())
-      {
-        walk.boy.land_on(walk.platform.bounding_box().y);
+      for bounding_box in &walk.platform.bounding_boxes() {
+        if walk.boy.bounding_box().intersects(bounding_box) {
+          if walk.boy.velocity_y() > 0
+            && walk.boy.pos_y() < walk.platform.position.y
+          {
+            walk.boy.land_on(bounding_box.y);
+          } else {
+            walk.boy.knock_out();
+          }
+        }
       }
 
       if walk
@@ -180,11 +184,23 @@ mod red_hat_boy {
           width: sprite.frame.w.into(),
           height: sprite.frame.h.into(),
         },
-        &self.bounding_box(),
+        &self.destination_box(),
       );
     }
 
     pub fn bounding_box(&self) -> Rect {
+      const X_OFFSET: f32 = 18.0;
+      const Y_OFFSET: f32 = 14.0;
+      const WIDTH_OFFSET: f32 = 28.0;
+      let mut bounding_box = self.destination_box();
+      bounding_box.x += X_OFFSET;
+      bounding_box.y += Y_OFFSET;
+      bounding_box.width -= WIDTH_OFFSET;
+      bounding_box.height -= Y_OFFSET;
+      bounding_box
+    }
+
+    pub fn destination_box(&self) -> Rect {
       let sprite = self.current_sprite().expect("Could not found");
 
       Rect {
@@ -221,6 +237,14 @@ mod red_hat_boy {
 
     pub fn land_on(&mut self, position: f32) {
       self.state = self.state.transition(Event::Land(position));
+    }
+
+    pub fn velocity_y(&self) -> i16 {
+      self.state.context().velocity.y
+    }
+
+    pub fn pos_y(&self) -> i16 {
+      self.state.context().position.y
     }
   }
 
@@ -454,6 +478,7 @@ mod red_hat_boy {
 
     fn stop(mut self) -> Self {
       self.velocity.x = 0;
+      self.velocity.y = 0;
       self
     }
 
@@ -641,7 +666,7 @@ mod red_hat_boy {
   pub struct Platform {
     sheet: Sheet,
     image: HtmlImageElement,
-    position: Point,
+    pub position: Point,
   }
 
   impl Platform {
@@ -668,11 +693,11 @@ mod red_hat_boy {
           width: (platform.frame.w * 3).into(),
           height: platform.frame.h.into(),
         },
-        &self.bounding_box(),
+        &self.destination_box(),
       );
     }
 
-    pub fn bounding_box(&self) -> Rect {
+    pub fn destination_box(&self) -> Rect {
       let platform = self
         .sheet
         .frames
@@ -685,6 +710,35 @@ mod red_hat_boy {
         width: (platform.frame.w * 3).into(),
         height: platform.frame.h.into(),
       }
+    }
+
+    pub fn bounding_boxes(&self) -> Vec<Rect> {
+      const X_OFFSET: f32 = 60.0;
+      const END_HEIGHT: f32 = 54.0;
+      let destination_box = self.destination_box();
+
+      let bounding_box_one = Rect {
+        x: destination_box.x,
+        y: destination_box.y,
+        width: X_OFFSET,
+        height: END_HEIGHT,
+      };
+
+      let bounding_box_two = Rect {
+        x: destination_box.x + X_OFFSET,
+        y: destination_box.y,
+        width: destination_box.width - (X_OFFSET * 2.0),
+        height: destination_box.height,
+      };
+
+      let bounding_box_three = Rect {
+        x: destination_box.x + destination_box.width - X_OFFSET,
+        y: destination_box.y,
+        width: X_OFFSET,
+        height: END_HEIGHT,
+      };
+
+      vec![bounding_box_one, bounding_box_two, bounding_box_three]
     }
   }
 }

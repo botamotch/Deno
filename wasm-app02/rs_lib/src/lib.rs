@@ -13,7 +13,7 @@ mod test;
 #[wasm_bindgen]
 pub fn main() {
   let canvas = canvas().expect("");
-  canvas.set_width(600);
+  canvas.set_width(1000);
   canvas.set_height(600);
 
   spawn_local(async move {
