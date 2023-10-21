@@ -4,8 +4,7 @@ use wasm_bindgen::closure::{WasmClosure, WasmClosureFnOnce};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{
-  CanvasRenderingContext2d, Document, HtmlCanvasElement, HtmlImageElement,
-  Response, Window,
+  CanvasRenderingContext2d, Document, HtmlCanvasElement, HtmlImageElement, Response, Window,
 };
 
 pub type LoopClosure = Closure<dyn FnMut(f64)>;
@@ -32,9 +31,7 @@ pub fn canvas() -> Result<HtmlCanvasElement> {
     .get_element_by_id("canvas1")
     .ok_or_else(|| anyhow!("No Canvas Element found with ID 'canvas1'"))?
     .dyn_into::<web_sys::HtmlCanvasElement>()
-    .map_err(|element| {
-      anyhow!("Error converting {:#?} to HtmlCanvasElement", element)
-    })
+    .map_err(|element| anyhow!("Error converting {:#?} to HtmlCanvasElement", element))
 }
 
 pub fn context() -> Result<CanvasRenderingContext2d> {
@@ -68,9 +65,9 @@ pub async fn fetch_json(json_path: &str) -> Result<JsValue> {
   // JavaScriptで書くとこんな感じ？
   // (await window.fetch(json_path)).json();
   let resp_value = fetch_with_str(json_path).await?;
-  let resp: Response = resp_value.dyn_into().map_err(|element| {
-    anyhow!("Error converting {:#?} to Response", element)
-  })?;
+  let resp: Response = resp_value
+    .dyn_into()
+    .map_err(|element| anyhow!("Error converting {:#?} to Response", element))?;
 
   JsFuture::from(
     resp
@@ -82,8 +79,7 @@ pub async fn fetch_json(json_path: &str) -> Result<JsValue> {
 }
 
 pub fn new_image() -> Result<HtmlImageElement> {
-  HtmlImageElement::new()
-    .map_err(|err| anyhow!("Could not create HtmlImageElement: {:#?}", err))
+  HtmlImageElement::new().map_err(|err| anyhow!("Could not create HtmlImageElement: {:#?}", err))
 }
 
 pub fn closure_once<F, A, R>(fn_once: F) -> Closure<F::FnMut>
@@ -93,9 +89,7 @@ where
   Closure::once(fn_once)
 }
 
-pub fn request_animation_frame(
-  callback: &Closure<dyn FnMut(f64)>,
-) -> Result<i32> {
+pub fn request_animation_frame(callback: &Closure<dyn FnMut(f64)>) -> Result<i32> {
   window()?
     .request_animation_frame(callback.as_ref().unchecked_ref())
     .map_err(|err| anyhow!("Cannot request animation frame {:#?}", err))
@@ -110,8 +104,10 @@ pub fn create_raf_closure(f: impl FnMut(f64) + 'static) -> LoopClosure {
 }
 
 pub fn now() -> Result<f64> {
-  Ok(window()?
-     .performance()
-     .ok_or_else(|| anyhow!("Performance object not found"))?
-     .now())
+  Ok(
+    window()?
+      .performance()
+      .ok_or_else(|| anyhow!("Performance object not found"))?
+      .now(),
+  )
 }

@@ -54,36 +54,27 @@ impl Game for WalkTheDog {
           image.clone().ok_or_else(|| anyhow!("No Image Present"))?,
         );
 
-        let platform_sheet =
-          from_value(browser::fetch_json("tiles.json").await?)
-            .expect("Could not convert tiles.json into a Sheet structure");
+        let platform_sheet = from_value(browser::fetch_json("tiles.json").await?)
+          .expect("Could not convert tiles.json into a Sheet structure");
         let platform = Platform::new(
           platform_sheet,
           engine::load_image("tiles.png").await?,
           Point { x: 300, y: 400 },
         );
 
-        let background_width = background.width() as i16;
+        let w = background.width() as i16;
 
         Ok(Box::new(WalkTheDog::Loaded(Walk {
           boy: rhb,
           backgrounds: [
             Image::new(background.clone(), Point { x: 0, y: 0 }),
-            Image::new(
-              background.clone(),
-              Point {
-                x: background_width,
-                y: 0,
-              },
-            ),
+            Image::new(background.clone(), Point { x: w, y: 0 }),
           ],
           stone: Image::new(stone, Point { x: 350, y: 546 }),
           platform,
         })))
       }
-      WalkTheDog::Loaded(_) => {
-        Err(anyhow!("Error: Game is already initilalized!"))
-      }
+      WalkTheDog::Loaded(_) => Err(anyhow!("Error: Game is already initilalized!")),
     }
   }
   fn draw(&self, renderer: &Renderer) {
@@ -125,22 +116,16 @@ impl Game for WalkTheDog {
       let velocity = walk.velocity();
       walk.backgrounds.iter_mut().for_each(|background| {
         background.move_horizontally(velocity);
-        if ((background.bounding_box().x + background.bounding_box().width)
-          as i16)
-          < 0
-        {
-          background.set_x(
-            (background.bounding_box().x
-              + background.bounding_box().width * 2.0) as i16,
-          );
+        let x = background.bounding_box().x;
+        let w = background.bounding_box().width;
+        if ((x + w) as i16) < 0 {
+          background.set_x((x + w * 2.0) as i16);
         }
       });
 
       for bounding_box in &walk.platform.bounding_boxes() {
         if walk.boy.bounding_box().intersects(bounding_box) {
-          if walk.boy.velocity_y() > 0
-            && walk.boy.pos_y() < walk.platform.position.y
-          {
+          if walk.boy.velocity_y() > 0 && walk.boy.pos_y() < walk.platform.position.y {
             walk.boy.land_on(bounding_box.y);
           } else {
             walk.boy.knock_out();
@@ -239,12 +224,8 @@ mod red_hat_boy {
       let sprite = self.current_sprite().expect("Could not found");
 
       Rect {
-        x: (self.state.context().position.x
-          + sprite.sprite_source_size.x as i16)
-          .into(),
-        y: (self.state.context().position.y
-          + sprite.sprite_source_size.y as i16)
-          .into(),
+        x: (self.state.context().position.x + sprite.sprite_source_size.x as i16).into(),
+        y: (self.state.context().position.y + sprite.sprite_source_size.y as i16).into(),
         width: sprite.frame.w.into(),
         height: sprite.frame.h.into(),
       }
@@ -311,21 +292,11 @@ mod red_hat_boy {
       match (self, event) {
         // Transition
         (RedHatBoyStateMachine::Idle(state), Event::Run) => state.run().into(),
-        (RedHatBoyStateMachine::Running(state), Event::Slide) => {
-          state.slide().into()
-        }
-        (RedHatBoyStateMachine::Running(state), Event::Jump) => {
-          state.jump().into()
-        }
-        (RedHatBoyStateMachine::Running(state), Event::KnockOut) => {
-          state.knock_out().into()
-        }
-        (RedHatBoyStateMachine::Jumping(state), Event::KnockOut) => {
-          state.knock_out().into()
-        }
-        (RedHatBoyStateMachine::Sliding(state), Event::KnockOut) => {
-          state.knock_out().into()
-        }
+        (RedHatBoyStateMachine::Running(state), Event::Slide) => state.slide().into(),
+        (RedHatBoyStateMachine::Running(state), Event::Jump) => state.jump().into(),
+        (RedHatBoyStateMachine::Running(state), Event::KnockOut) => state.knock_out().into(),
+        (RedHatBoyStateMachine::Jumping(state), Event::KnockOut) => state.knock_out().into(),
+        (RedHatBoyStateMachine::Sliding(state), Event::KnockOut) => state.knock_out().into(),
         (RedHatBoyStateMachine::Jumping(state), Event::Land(position)) => {
           state.land_on(position).into()
         }
@@ -333,21 +304,11 @@ mod red_hat_boy {
           state.land_on(position).into()
         }
         // Update
-        (RedHatBoyStateMachine::Idle(state), Event::Update) => {
-          state.update().into()
-        }
-        (RedHatBoyStateMachine::Running(state), Event::Update) => {
-          state.update().into()
-        }
-        (RedHatBoyStateMachine::Sliding(state), Event::Update) => {
-          state.update().into()
-        }
-        (RedHatBoyStateMachine::Jumping(state), Event::Update) => {
-          state.update().into()
-        }
-        (RedHatBoyStateMachine::Falling(state), Event::Update) => {
-          state.update().into()
-        }
+        (RedHatBoyStateMachine::Idle(state), Event::Update) => state.update().into(),
+        (RedHatBoyStateMachine::Running(state), Event::Update) => state.update().into(),
+        (RedHatBoyStateMachine::Sliding(state), Event::Update) => state.update().into(),
+        (RedHatBoyStateMachine::Jumping(state), Event::Update) => state.update().into(),
+        (RedHatBoyStateMachine::Falling(state), Event::Update) => state.update().into(),
         (RedHatBoyStateMachine::KnockedOut(_), Event::Update) => self,
         _ => self,
       }
