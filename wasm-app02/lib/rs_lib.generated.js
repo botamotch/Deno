@@ -1,7 +1,7 @@
 // @generated file from wasmbuild -- do not edit
 // deno-lint-ignore-file
 // deno-fmt-ignore-file
-// source-hash: 92a9916b2de43e58a85bafacef32466fcff1d132
+// source-hash: eb39438b0887243afbfc6e187c3ab08bc7be0814
 let wasm;
 
 const heap = new Array(128).fill(undefined);
@@ -467,6 +467,29 @@ const imports = {
       const ret = getObject(arg0).height;
       return ret;
     },
+    __wbg_drawImage_f647065c8b6c6c44: function () {
+      return handleError(
+        function (arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) {
+          getObject(arg0).drawImage(
+            getObject(arg1),
+            arg2,
+            arg3,
+            arg4,
+            arg5,
+            arg6,
+            arg7,
+            arg8,
+            arg9,
+          );
+        },
+        arguments,
+      );
+    },
+    __wbg_drawImage_9758fa4c03ab8fc8: function () {
+      return handleError(function (arg0, arg1, arg2, arg3) {
+        getObject(arg0).drawImage(getObject(arg1), arg2, arg3);
+      }, arguments);
+    },
     __wbindgen_is_undefined: function (arg0) {
       const ret = getObject(arg0) === undefined;
       return ret;
@@ -495,29 +518,6 @@ const imports = {
     },
     __wbg_clearRect_517d3360d8be8a55: function (arg0, arg1, arg2, arg3, arg4) {
       getObject(arg0).clearRect(arg1, arg2, arg3, arg4);
-    },
-    __wbg_drawImage_9758fa4c03ab8fc8: function () {
-      return handleError(function (arg0, arg1, arg2, arg3) {
-        getObject(arg0).drawImage(getObject(arg1), arg2, arg3);
-      }, arguments);
-    },
-    __wbg_drawImage_f647065c8b6c6c44: function () {
-      return handleError(
-        function (arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) {
-          getObject(arg0).drawImage(
-            getObject(arg1),
-            arg2,
-            arg3,
-            arg4,
-            arg5,
-            arg6,
-            arg7,
-            arg8,
-            arg9,
-          );
-        },
-        arguments,
-      );
     },
     __wbg_new0_c0be7df4b6bd481f: function () {
       const ret = new Date();

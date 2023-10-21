@@ -12,7 +12,7 @@ use web_sys::{CanvasRenderingContext2d, HtmlImageElement};
 
 use crate::browser;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Default)]
 pub struct Point {
   pub x: i16,
   pub y: i16,
@@ -40,27 +40,27 @@ pub struct Sheet {
 
 pub struct Image {
   element: HtmlImageElement,
-  position: Point,
   bounding_box: Rect,
 }
 
 impl Image {
   pub fn new(element: HtmlImageElement, position: Point) -> Self {
     let bounding_box = Rect {
-      x: position.x.into(),
-      y: position.y.into(),
-      height: element.height() as f32,
-      width: element.width() as f32,
+      position: Point {
+        x: position.x,
+        y: position.y,
+      },
+      height: element.height() as i16,
+      width: element.width() as i16,
     };
     Self {
       element,
-      position,
       bounding_box,
     }
   }
 
   pub fn draw(&self, renderer: &Renderer) {
-    renderer.draw_entire_image(&self.element, &self.position)
+    renderer.draw_entire_image(&self.element, &self.bounding_box.position)
   }
 
   pub fn bounding_box(&self) -> &Rect {
@@ -68,12 +68,15 @@ impl Image {
   }
 
   pub fn move_horizontally(&mut self, distance: i16) {
-    self.set_x(self.position.x + distance);
+    self.set_x(self.bounding_box.position.x + distance);
   }
 
   pub fn set_x(&mut self, x: i16) {
-    self.bounding_box.x = x as f32;
-    self.position.x = x;
+    self.bounding_box.position.x = x;
+  }
+
+  pub fn right(&self) -> i16 {
+    self.bounding_box.position.x + self.bounding_box.width
   }
 }
 
@@ -165,27 +168,31 @@ pub struct Renderer {
   context: CanvasRenderingContext2d,
 }
 
+#[derive(Default)]
 pub struct Rect {
-  pub x: f32,
-  pub y: f32,
-  pub width: f32,
-  pub height: f32,
+  pub position: Point,
+  pub width: i16,
+  pub height: i16,
 }
 
 impl Rect {
   pub fn intersects(&self, rect: &Rect) -> bool {
-    self.x < (rect.x + rect.width)
-      && (self.x + self.width) > rect.x
-      && self.y < (rect.y + rect.height)
-      && (self.y + self.height) > rect.y
+    self.position.x < (rect.position.x + rect.width)
+      && (self.position.x + self.width) > rect.position.x
+      && self.position.y < (rect.position.y + rect.height)
+      && (self.position.y + self.height) > rect.position.y
+  }
+
+  pub fn right(&self) -> i16 {
+    self.position.x + self.width
   }
 }
 
 impl Renderer {
   pub fn clear(&self, rect: &Rect) {
     self.context.clear_rect(
-      rect.x.into(),
-      rect.y.into(),
+      rect.position.x.into(),
+      rect.position.y.into(),
       rect.width.into(),
       rect.height.into(),
     )
@@ -196,12 +203,12 @@ impl Renderer {
       .context
       .draw_image_with_html_image_element_and_sw_and_sh_and_dx_and_dy_and_dw_and_dh(
         &image,
-        frame.x.into(),
-        frame.y.into(),
+        frame.position.x.into(),
+        frame.position.y.into(),
         frame.width.into(),
         frame.height.into(),
-        destination.x.into(),
-        destination.y.into(),
+        destination.position.x.into(),
+        destination.position.y.into(),
         destination.width.into(),
         destination.height.into(),
       )

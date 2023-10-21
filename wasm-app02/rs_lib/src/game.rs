@@ -21,8 +21,7 @@ pub enum WalkTheDog {
 pub struct Walk {
   boy: RedHatBoy,
   backgrounds: [Image; 2],
-  stone: Image,
-  platform: Platform,
+  obstacles: Vec<Box<dyn Obstacle>>,
 }
 
 impl Walk {
@@ -70,8 +69,10 @@ impl Game for WalkTheDog {
             Image::new(background.clone(), Point { x: 0, y: 0 }),
             Image::new(background.clone(), Point { x: w, y: 0 }),
           ],
-          stone: Image::new(stone, Point { x: 350, y: 546 }),
-          platform,
+          obstacles: vec![
+            Box::new(Barrier::new(Image::new(stone, Point { x: 350, y: 546 }))),
+            Box::new(platform),
+          ],
         })))
       }
       WalkTheDog::Loaded(_) => Err(anyhow!("Error: Game is already initilalized!")),
@@ -79,10 +80,9 @@ impl Game for WalkTheDog {
   }
   fn draw(&self, renderer: &Renderer) {
     renderer.clear(&Rect {
-      x: 0.0,
-      y: 0.0,
-      width: 1000.0,
-      height: 600.0,
+      position: Point { x: 0, y: 0 },
+      width: 1000,
+      height: 600,
     });
 
     if let WalkTheDog::Loaded(walk) = self {
@@ -90,8 +90,9 @@ impl Game for WalkTheDog {
         background.draw(renderer);
       });
       walk.boy.draw(renderer);
-      walk.stone.draw(renderer);
-      walk.platform.draw(renderer);
+      walk.obstacles.iter().for_each(|obstacle| {
+        obstacle.draw(renderer);
+      });
     }
   }
 
@@ -111,36 +112,107 @@ impl Game for WalkTheDog {
 
       walk.boy.update();
 
-      walk.platform.position.x += walk.velocity();
-      walk.stone.move_horizontally(walk.velocity());
       let velocity = walk.velocity();
       walk.backgrounds.iter_mut().for_each(|background| {
         background.move_horizontally(velocity);
-        let x = background.bounding_box().x;
+        let x = background.bounding_box().position.x;
         let w = background.bounding_box().width;
         if ((x + w) as i16) < 0 {
-          background.set_x((x + w * 2.0) as i16);
+          background.move_horizontally(w * 2);
         }
       });
 
-      for bounding_box in &walk.platform.bounding_boxes() {
-        if walk.boy.bounding_box().intersects(bounding_box) {
-          if walk.boy.velocity_y() > 0 && walk.boy.pos_y() < walk.platform.position.y {
-            walk.boy.land_on(bounding_box.y);
-          } else {
-            walk.boy.knock_out();
-          }
-        }
-      }
+      walk.obstacles.retain(|obstacle| obstacle.right() > 0);
 
-      if walk
-        .boy
-        .bounding_box()
-        .intersects(walk.stone.bounding_box())
-      {
-        walk.boy.knock_out();
+      walk.obstacles.iter_mut().for_each(|obstacle| {
+        obstacle.move_horizontally(velocity);
+        obstacle.check_intersecttion(&mut walk.boy);
+      });
+    }
+  }
+}
+
+pub trait Obstacle {
+  fn check_intersecttion(&self, boy: &mut RedHatBoy);
+  fn draw(&self, renderer: &Renderer);
+  fn move_horizontally(&mut self, x: i16);
+  fn right(&self) -> i16;
+}
+
+impl Obstacle for Platform {
+  fn draw(&self, renderer: &Renderer) {
+    let platform = self
+      .sheet
+      .frames
+      .get("13.png")
+      .expect("13.png does not found");
+
+    renderer.draw_image(
+      &self.image,
+      &Rect {
+        position: Point {
+          x: platform.frame.x.into(),
+          y: platform.frame.y.into(),
+        },
+        width: (platform.frame.w * 3).into(),
+        height: platform.frame.h.into(),
+      },
+      &self.destination_box(),
+    );
+  }
+  fn move_horizontally(&mut self, distance: i16) {
+    self.position.x += distance;
+  }
+
+  fn check_intersecttion(&self, boy: &mut RedHatBoy) {
+    if let Some(box_to_land_on) = self
+      .bounding_boxes()
+      .iter()
+      .find(|&bounding_box| boy.bounding_box().intersects(bounding_box))
+    {
+      if boy.velocity_y() > 0 && boy.pos_y() < self.position.y {
+        boy.land_on(box_to_land_on.position.y);
+      } else {
+        boy.knock_out();
       }
     }
+  }
+
+  fn right(&self) -> i16 {
+    self.bounding_boxes()
+      .last()
+      .unwrap_or(&Rect::default())
+      .right()
+  }
+}
+
+pub struct Barrier {
+  image: Image,
+}
+
+impl Barrier {
+  pub fn new(image: Image) -> Self {
+    Barrier { image }
+  }
+}
+
+impl Obstacle for Barrier {
+  fn check_intersecttion(&self, boy: &mut RedHatBoy) {
+    if boy.bounding_box().intersects(self.image.bounding_box()) {
+      boy.knock_out();
+    }
+  }
+
+  fn draw(&self, renderer: &Renderer) {
+    self.image.draw(renderer)
+  }
+
+  fn move_horizontally(&mut self, x: i16) {
+    self.image.move_horizontally(x)
+  }
+
+  fn right(&self) -> i16 {
+    self.image.right()
   }
 }
 
@@ -199,8 +271,10 @@ mod red_hat_boy {
       renderer.draw_image(
         &self.image,
         &Rect {
-          x: sprite.frame.x.into(),
-          y: sprite.frame.y.into(),
+          position: Point {
+            x: sprite.frame.x.into(),
+            y: sprite.frame.y.into(),
+          },
           width: sprite.frame.w.into(),
           height: sprite.frame.h.into(),
         },
@@ -209,12 +283,12 @@ mod red_hat_boy {
     }
 
     pub fn bounding_box(&self) -> Rect {
-      const X_OFFSET: f32 = 18.0;
-      const Y_OFFSET: f32 = 14.0;
-      const WIDTH_OFFSET: f32 = 28.0;
+      const X_OFFSET: i16 = 18;
+      const Y_OFFSET: i16 = 14;
+      const WIDTH_OFFSET: i16 = 28;
       let mut bounding_box = self.destination_box();
-      bounding_box.x += X_OFFSET;
-      bounding_box.y += Y_OFFSET;
+      bounding_box.position.x += X_OFFSET;
+      bounding_box.position.y += Y_OFFSET;
       bounding_box.width -= WIDTH_OFFSET;
       bounding_box.height -= Y_OFFSET;
       bounding_box
@@ -224,8 +298,10 @@ mod red_hat_boy {
       let sprite = self.current_sprite().expect("Could not found");
 
       Rect {
-        x: (self.state.context().position.x + sprite.sprite_source_size.x as i16).into(),
-        y: (self.state.context().position.y + sprite.sprite_source_size.y as i16).into(),
+        position: Point {
+          x: (self.state.context().position.x + sprite.sprite_source_size.x as i16).into(),
+          y: (self.state.context().position.y + sprite.sprite_source_size.y as i16).into(),
+        },
         width: sprite.frame.w.into(),
         height: sprite.frame.h.into(),
       }
@@ -251,7 +327,7 @@ mod red_hat_boy {
       self.state = self.state.transition(Event::KnockOut);
     }
 
-    pub fn land_on(&mut self, position: f32) {
+    pub fn land_on(&mut self, position: i16) {
       self.state = self.state.transition(Event::Land(position));
     }
 
@@ -274,7 +350,7 @@ mod red_hat_boy {
     Update,
     Jump,
     KnockOut,
-    Land(f32),
+    Land(i16),
   }
 
   #[derive(Copy, Clone)]
@@ -531,7 +607,7 @@ mod red_hat_boy {
       self
     }
 
-    pub fn land_on(self, position: f32) -> RedHatBoyState<Running> {
+    pub fn land_on(self, position: i16) -> RedHatBoyState<Running> {
       RedHatBoyState {
         context: self.context.set_on(position as i16),
         _state: Running,
@@ -605,7 +681,7 @@ mod red_hat_boy {
       FRAME_NAME_JUMPING
     }
 
-    pub fn land_on(self, position: f32) -> RedHatBoyState<Running> {
+    pub fn land_on(self, position: i16) -> RedHatBoyState<Running> {
       RedHatBoyState {
         context: self.context.reset_frame().set_on(position as i16),
         _state: Running,
@@ -664,8 +740,8 @@ mod red_hat_boy {
   }
 
   pub struct Platform {
-    sheet: Sheet,
-    image: HtmlImageElement,
+    pub sheet: Sheet,
+    pub image: HtmlImageElement,
     pub position: Point,
   }
 
@@ -678,25 +754,6 @@ mod red_hat_boy {
       }
     }
 
-    pub fn draw(&self, renderer: &Renderer) {
-      let platform = self
-        .sheet
-        .frames
-        .get("13.png")
-        .expect("13.png does not found");
-
-      renderer.draw_image(
-        &self.image,
-        &Rect {
-          x: platform.frame.x.into(),
-          y: platform.frame.y.into(),
-          width: (platform.frame.w * 3).into(),
-          height: platform.frame.h.into(),
-        },
-        &self.destination_box(),
-      );
-    }
-
     pub fn destination_box(&self) -> Rect {
       let platform = self
         .sheet
@@ -705,35 +762,43 @@ mod red_hat_boy {
         .expect("13.png does not found");
 
       Rect {
-        x: self.position.x.into(),
-        y: self.position.y.into(),
+        position: Point {
+          x: self.position.x.into(),
+          y: self.position.y.into(),
+        },
         width: (platform.frame.w * 3).into(),
         height: platform.frame.h.into(),
       }
     }
 
     pub fn bounding_boxes(&self) -> Vec<Rect> {
-      const X_OFFSET: f32 = 60.0;
-      const END_HEIGHT: f32 = 54.0;
+      const X_OFFSET: i16 = 60;
+      const END_HEIGHT: i16 = 54;
       let destination_box = self.destination_box();
 
       let bounding_box_one = Rect {
-        x: destination_box.x,
-        y: destination_box.y,
+        position: Point {
+          x: destination_box.position.x,
+          y: destination_box.position.y,
+        },
         width: X_OFFSET,
         height: END_HEIGHT,
       };
 
       let bounding_box_two = Rect {
-        x: destination_box.x + X_OFFSET,
-        y: destination_box.y,
-        width: destination_box.width - (X_OFFSET * 2.0),
+        position: Point {
+          x: destination_box.position.x + X_OFFSET,
+          y: destination_box.position.y,
+        },
+        width: destination_box.width - (X_OFFSET * 2),
         height: destination_box.height,
       };
 
       let bounding_box_three = Rect {
-        x: destination_box.x + destination_box.width - X_OFFSET,
-        y: destination_box.y,
+        position: Point {
+          x: destination_box.position.x + destination_box.width - X_OFFSET,
+          y: destination_box.position.y,
+        },
         width: X_OFFSET,
         height: END_HEIGHT,
       };
