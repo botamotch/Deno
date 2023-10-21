@@ -179,7 +179,8 @@ impl Obstacle for Platform {
   }
 
   fn right(&self) -> i16 {
-    self.bounding_boxes()
+    self
+      .bounding_boxes()
       .last()
       .unwrap_or(&Rect::default())
       .right()
@@ -373,6 +374,9 @@ mod red_hat_boy {
         (RedHatBoyStateMachine::Running(state), Event::KnockOut) => state.knock_out().into(),
         (RedHatBoyStateMachine::Jumping(state), Event::KnockOut) => state.knock_out().into(),
         (RedHatBoyStateMachine::Sliding(state), Event::KnockOut) => state.knock_out().into(),
+        (RedHatBoyStateMachine::Sliding(state), Event::Land(position)) => {
+          state.land_on(position).into()
+        }
         (RedHatBoyStateMachine::Jumping(state), Event::Land(position)) => {
           state.land_on(position).into()
         }
@@ -528,11 +532,12 @@ mod red_hat_boy {
       } else {
         self.frame = 0;
       }
-      self.velocity.y += GRAVITY;
-      // self.position.x += self.velocity.x;
-      self.position.y += self.velocity.y;
       if self.position.y > FLOOR {
+        self.velocity.y = 0;
         self.position.y = FLOOR;
+      } else {
+        self.velocity.y += GRAVITY;
+        self.position.y += self.velocity.y;
       }
       self
     }
@@ -667,6 +672,13 @@ mod red_hat_boy {
       RedHatBoyState {
         context: self.context.reset_frame().stop(),
         _state: Falling {},
+      }
+    }
+
+    pub fn land_on(self, position: i16) -> RedHatBoyState<Sliding> {
+      RedHatBoyState {
+        context: self.context.set_on(position as i16),
+        _state: Sliding,
       }
     }
   }
