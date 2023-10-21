@@ -66,6 +66,15 @@ impl Image {
   pub fn bounding_box(&self) -> &Rect {
     &self.bounding_box
   }
+
+  pub fn move_horizontally(&mut self, distance: i16) {
+    self.set_x(self.position.x + distance);
+  }
+
+  pub fn set_x(&mut self, x: i16) {
+    self.bounding_box.x = x as f32;
+    self.position.x = x;
+  }
 }
 
 pub async fn load_image(source: &str) -> Result<HtmlImageElement> {

@@ -20,9 +20,15 @@ pub enum WalkTheDog {
 
 pub struct Walk {
   boy: RedHatBoy,
-  background: Image,
+  backgrounds: [Image; 2],
   stone: Image,
   platform: Platform,
+}
+
+impl Walk {
+  fn velocity(&self) -> i16 {
+    -self.boy.walking_speed()
+  }
 }
 
 impl WalkTheDog {
@@ -57,9 +63,20 @@ impl Game for WalkTheDog {
           Point { x: 300, y: 400 },
         );
 
+        let background_width = background.width() as i16;
+
         Ok(Box::new(WalkTheDog::Loaded(Walk {
           boy: rhb,
-          background: Image::new(background, Point { x: 0, y: 0 }),
+          backgrounds: [
+            Image::new(background.clone(), Point { x: 0, y: 0 }),
+            Image::new(
+              background.clone(),
+              Point {
+                x: background_width,
+                y: 0,
+              },
+            ),
+          ],
           stone: Image::new(stone, Point { x: 350, y: 546 }),
           platform,
         })))
@@ -78,7 +95,9 @@ impl Game for WalkTheDog {
     });
 
     if let WalkTheDog::Loaded(walk) = self {
-      walk.background.draw(renderer);
+      walk.backgrounds.iter().for_each(|background| {
+        background.draw(renderer);
+      });
       walk.boy.draw(renderer);
       walk.stone.draw(renderer);
       walk.platform.draw(renderer);
@@ -100,6 +119,22 @@ impl Game for WalkTheDog {
       }
 
       walk.boy.update();
+
+      walk.platform.position.x += walk.velocity();
+      walk.stone.move_horizontally(walk.velocity());
+      let velocity = walk.velocity();
+      walk.backgrounds.iter_mut().for_each(|background| {
+        background.move_horizontally(velocity);
+        if ((background.bounding_box().x + background.bounding_box().width)
+          as i16)
+          < 0
+        {
+          background.set_x(
+            (background.bounding_box().x
+              + background.bounding_box().width * 2.0) as i16,
+          );
+        }
+      });
 
       for bounding_box in &walk.platform.bounding_boxes() {
         if walk.boy.bounding_box().intersects(bounding_box) {
@@ -245,6 +280,10 @@ mod red_hat_boy {
 
     pub fn pos_y(&self) -> i16 {
       self.state.context().position.y
+    }
+
+    pub fn walking_speed(&self) -> i16 {
+      self.state.context().velocity.x
     }
   }
 
@@ -453,7 +492,7 @@ mod red_hat_boy {
         self.frame = 0;
       }
       self.velocity.y += GRAVITY;
-      self.position.x += self.velocity.x;
+      // self.position.x += self.velocity.x;
       self.position.y += self.velocity.y;
       if self.position.y > FLOOR {
         self.position.y = FLOOR;
