@@ -614,7 +614,10 @@ mod red_hat_boy {
 
     pub fn land_on(self, position: i16) -> RedHatBoyState<Running> {
       RedHatBoyState {
-        context: self.context.set_on(position as i16),
+        context: self
+          .context
+          .set_vertical_velocity(0)
+          .set_on(position as i16),
         _state: Running,
       }
     }
@@ -677,7 +680,10 @@ mod red_hat_boy {
 
     pub fn land_on(self, position: i16) -> RedHatBoyState<Sliding> {
       RedHatBoyState {
-        context: self.context.set_on(position as i16),
+        context: self
+          .context
+          .set_vertical_velocity(0)
+          .set_on(position as i16),
         _state: Sliding,
       }
     }
@@ -695,7 +701,11 @@ mod red_hat_boy {
 
     pub fn land_on(self, position: i16) -> RedHatBoyState<Running> {
       RedHatBoyState {
-        context: self.context.reset_frame().set_on(position as i16),
+        context: self
+          .context
+          .reset_frame()
+          .set_vertical_velocity(0)
+          .set_on(position as i16),
         _state: Running,
       }
     }
