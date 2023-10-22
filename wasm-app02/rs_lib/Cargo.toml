@@ -16,6 +16,7 @@ serde-wasm-bindgen = "0.6.0"
 anyhow = "1.0.75"
 async-trait = "0.1.73"
 chrono = "0.4.31"
+rand = "0.8.5"
 
 [dependencies.web-sys]
 version = "0.3"

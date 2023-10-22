@@ -9,6 +9,7 @@ mod browser;
 mod engine;
 mod game;
 mod test;
+mod segment;
 
 #[wasm_bindgen]
 pub fn main() {

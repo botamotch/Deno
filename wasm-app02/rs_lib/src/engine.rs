@@ -38,6 +38,25 @@ pub struct Sheet {
   pub frames: HashMap<String, Cell>,
 }
 
+pub struct SpriteSheet {
+  sheet: Sheet,
+  pub image: HtmlImageElement,
+}
+
+impl SpriteSheet {
+  pub fn new(sheet: Sheet, image: HtmlImageElement) -> Self {
+    SpriteSheet { sheet, image }
+  }
+
+  pub fn cell(&self, name: &str) -> Option<&Cell> {
+    self.sheet.frames.get(name)
+  }
+
+  pub fn draw(&self, renderer: &Renderer, source: &Rect, destination: &Rect) {
+    renderer.draw_image(&self.image, source, destination);
+  }
+}
+
 pub struct Image {
   element: HtmlImageElement,
   bounding_box: Rect,
@@ -185,6 +204,26 @@ impl Rect {
 
   pub fn right(&self) -> i16 {
     self.position.x + self.width
+  }
+
+  pub const fn new_from_x_y(x: i16, y: i16, width: i16, height: i16) -> Self {
+    Rect {
+      position: Point { x, y },
+      width,
+      height,
+    }
+  }
+
+  pub fn set_x(&mut self, x: i16) {
+    self.position.x = x;
+  }
+
+  pub fn x(&self) -> i16 {
+    self.position.x
+  }
+
+  pub fn y(&self) -> i16 {
+    self.position.y
   }
 }
 
