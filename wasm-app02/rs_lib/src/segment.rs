@@ -6,9 +6,10 @@ use std::rc::Rc;
 use web_sys::HtmlImageElement;
 
 const STONE_ON_GROUND: i16 = 546;
-const FIRST_PLATFORM: i16 = 500;
-const LOW_PLATFORM: i16 = 380;
-const INITIAL_STONE_OFFSET: i16 = 400;
+const FIRST_PLATFORM: i16 = 400;
+// const HIGH_PLATFORM: i16 = 380;
+const LOW_PLATFORM: i16 = 430;
+const INITIAL_STONE_OFFSET: i16 = 600;
 
 pub fn stone_and_platform(
   stone: HtmlImageElement,
@@ -33,7 +34,7 @@ pub fn stone_and_platform(
   ]
 }
 
-pub fn stone(stone: HtmlImageElement, offset_x: i16) -> Vec<Box<dyn Obstacle>> {
+pub fn obstacle_stone(stone: HtmlImageElement, offset_x: i16) -> Vec<Box<dyn Obstacle>> {
   vec![Box::new(Barrier::new(Image::new(
     stone,
     Point {

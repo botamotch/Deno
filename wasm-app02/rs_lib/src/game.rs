@@ -10,7 +10,7 @@ use crate::browser;
 use crate::engine;
 use crate::engine::{Cell, Game, Image, KeyState, Point, Rect, Renderer, Sheet, SpriteSheet};
 use crate::segment::platform_high;
-use crate::segment::{stone, stone_and_platform};
+use crate::segment::{obstacle_stone, stone_and_platform};
 
 use self::red_hat_boy::RedHatBoy;
 
@@ -46,7 +46,7 @@ impl Walk {
         self.obstacle_sheet.clone(),
         self.timeline + OBSTACLE_BUFFER,
       ),
-      1 => stone(self.stone.clone(), self.timeline + OBSTACLE_BUFFER),
+      1 => obstacle_stone(self.stone.clone(), self.timeline + OBSTACLE_BUFFER),
       2 => platform_high(self.obstacle_sheet.clone(), self.timeline + OBSTACLE_BUFFER),
       _ => vec![],
     };
@@ -95,8 +95,10 @@ impl Game for WalkTheDog {
           engine::load_image("tiles.png").await?,
         ));
 
-        let starting_obstacle = stone_and_platform(stone.clone(), sprite_sheet.clone(), 0);
+        let starting_obstacle = stone_and_platform(stone.clone(), sprite_sheet.clone(), 600);
+        // let starting_obstacle = obstacle_stone(stone.clone(), 200);
         let timeline = rightmost(&starting_obstacle);
+        log!("timeline : {}", timeline);
 
         let w = background.width() as i16;
         Ok(Box::new(WalkTheDog::Loaded(Walk {
@@ -167,6 +169,7 @@ impl Game for WalkTheDog {
 
       if walk.timeline < TIMELINE_MINIMUN {
         walk.genereate_next_getment();
+        log!("timeline : {}", walk.timeline);
       } else {
         walk.timeline += velocity;
       }
