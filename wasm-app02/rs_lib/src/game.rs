@@ -9,8 +9,9 @@ use web_sys::HtmlImageElement;
 use crate::browser;
 use crate::engine;
 use crate::engine::{Cell, Game, Image, KeyState, Point, Rect, Renderer, Sheet, SpriteSheet};
+use crate::segment::obstacle_stone;
 use crate::segment::platform_high;
-use crate::segment::{obstacle_stone, stone_and_platform};
+use crate::segment::stone_and_platform;
 
 use self::red_hat_boy::RedHatBoy;
 
@@ -48,7 +49,8 @@ impl Walk {
       ),
       1 => obstacle_stone(self.stone.clone(), self.timeline + OBSTACLE_BUFFER),
       2 => platform_high(self.obstacle_sheet.clone(), self.timeline + OBSTACLE_BUFFER),
-      _ => vec![],
+      _ => obstacle_stone(self.stone.clone(), self.timeline + OBSTACLE_BUFFER),
+      // _ => vec![],
     };
 
     self.timeline = rightmost(&next_obstacle);
@@ -98,7 +100,7 @@ impl Game for WalkTheDog {
         let starting_obstacle = stone_and_platform(stone.clone(), sprite_sheet.clone(), 600);
         // let starting_obstacle = obstacle_stone(stone.clone(), 200);
         let timeline = rightmost(&starting_obstacle);
-        log!("timeline : {}", timeline);
+        // log!("timeline : {}", timeline);
 
         let w = background.width() as i16;
         Ok(Box::new(WalkTheDog::Loaded(Walk {
