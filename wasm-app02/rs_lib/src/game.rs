@@ -9,14 +9,12 @@ use web_sys::HtmlImageElement;
 use crate::browser;
 use crate::engine;
 use crate::engine::{Cell, Game, Image, KeyState, Point, Rect, Renderer, Sheet, SpriteSheet};
-use crate::segment::obstacle_stone;
-use crate::segment::platform_high;
-use crate::segment::stone_and_platform;
+use crate::segment::{obstacle_stone, platform_double, platform_high, stone_and_platform};
 
 use self::red_hat_boy::RedHatBoy;
 
 const TIMELINE_MINIMUN: i16 = 1600;
-const OBSTACLE_BUFFER: i16 = 0;
+const OBSTACLE_BUFFER: i16 = 30;
 
 pub enum WalkTheDog {
   Loading,
@@ -30,6 +28,7 @@ pub struct Walk {
   obstacle_sheet: Rc<SpriteSheet>,
   stone: HtmlImageElement,
   timeline: i16,
+  rng: ThreadRng,
 }
 
 impl Walk {
@@ -38,17 +37,31 @@ impl Walk {
   }
 
   fn genereate_next_getment(&mut self) {
-    let mut rng = thread_rng();
-    let next_segment = rng.gen_range(0..3);
+    // let mut rng = thread_rng();
+    let next_segment = self.rng.gen_range(0..5);
 
     let mut next_obstacle = match next_segment {
       0 => stone_and_platform(
         self.stone.clone(),
         self.obstacle_sheet.clone(),
         self.timeline + OBSTACLE_BUFFER,
+        &mut self.rng,
       ),
-      1 => platform_high(self.obstacle_sheet.clone(), self.timeline + OBSTACLE_BUFFER),
-      _ => obstacle_stone(self.stone.clone(), self.timeline + OBSTACLE_BUFFER),
+      1 => platform_high(
+        self.obstacle_sheet.clone(),
+        self.timeline + OBSTACLE_BUFFER,
+        &mut self.rng,
+      ),
+      2 => platform_double(
+        self.obstacle_sheet.clone(),
+        self.timeline + OBSTACLE_BUFFER,
+        &mut self.rng,
+      ),
+      _ => obstacle_stone(
+        self.stone.clone(),
+        self.timeline + OBSTACLE_BUFFER,
+        &mut self.rng,
+      ),
       // _ => vec![],
     };
 
@@ -96,7 +109,9 @@ impl Game for WalkTheDog {
           engine::load_image("tiles.png").await?,
         ));
 
-        let starting_obstacle = stone_and_platform(stone.clone(), sprite_sheet.clone(), 600);
+        let mut rng = thread_rng();
+        let starting_obstacle =
+          stone_and_platform(stone.clone(), sprite_sheet.clone(), 600, &mut rng);
         // let starting_obstacle = obstacle_stone(stone.clone(), 200);
         let timeline = rightmost(&starting_obstacle);
         // log!("timeline : {}", timeline);
@@ -112,6 +127,7 @@ impl Game for WalkTheDog {
           obstacle_sheet: sprite_sheet,
           stone,
           timeline,
+          rng,
         })))
       }
       WalkTheDog::Loaded(_) => Err(anyhow!("Error: Game is already initilalized!")),
@@ -169,7 +185,11 @@ impl Game for WalkTheDog {
       });
 
       if walk.timeline < TIMELINE_MINIMUN {
-        log!("TIMELINE_MINIMUN : {} , timeline : {} ", TIMELINE_MINIMUN, walk.timeline);
+        log!(
+          "TIMELINE_MINIMUN : {} , timeline : {} ",
+          TIMELINE_MINIMUN,
+          walk.timeline
+        );
         walk.genereate_next_getment();
       } else {
         walk.timeline += velocity;

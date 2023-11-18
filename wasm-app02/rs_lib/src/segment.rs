@@ -7,49 +7,58 @@ use std::rc::Rc;
 use web_sys::HtmlImageElement;
 
 const STONE_ON_GROUND: i16 = 546;
-const OFFSET_X: i16 = 200;
+const OFFSET_X: i16 = 140;
 const LOW_PLATFORM: i16 = 430;
 
 pub fn stone_and_platform(
   stone: HtmlImageElement,
   sprite_sheet: Rc<SpriteSheet>,
   offset_x: i16,
+  rng: &mut ThreadRng,
 ) -> Vec<Box<dyn Obstacle>> {
-  let mut rng = thread_rng();
+  // let mut rng = thread_rng();
   let offset_rnd_stone = rng.gen_range(0..5);
   let offset_rnd_platform = rng.gen_range(0..5);
   vec![
     Box::new(Barrier::new(Image::new(
       stone,
       Point {
-        x: offset_x + OFFSET_X - offset_rnd_stone * 20,
+        x: offset_x + OFFSET_X - offset_rnd_stone * 20 + 100,
         y: STONE_ON_GROUND,
       },
     ))),
     Box::new(create_floating_platform(
       sprite_sheet,
       Point {
-        x: offset_x + OFFSET_X,
+        x: offset_x + OFFSET_X + 100,
         y: LOW_PLATFORM - offset_rnd_platform * 30,
       },
     )),
   ]
 }
 
-pub fn obstacle_stone(stone: HtmlImageElement, offset_x: i16) -> Vec<Box<dyn Obstacle>> {
-  let mut rng = thread_rng();
+pub fn obstacle_stone(
+  stone: HtmlImageElement,
+  offset_x: i16,
+  rng: &mut ThreadRng,
+) -> Vec<Box<dyn Obstacle>> {
+  // let mut rng = thread_rng();
   let offset_rnd = rng.gen_range(0..3);
   vec![Box::new(Barrier::new(Image::new(
     stone,
     Point {
-      x: offset_x + OFFSET_X - offset_rnd * 50 + 200,
+      x: offset_x + OFFSET_X - offset_rnd * 50 + 100,
       y: STONE_ON_GROUND,
     },
   )))]
 }
 
-pub fn platform_high(sprite_sheet: Rc<SpriteSheet>, offset_x: i16) -> Vec<Box<dyn Obstacle>> {
-  let mut rng = thread_rng();
+pub fn platform_high(
+  sprite_sheet: Rc<SpriteSheet>,
+  offset_x: i16,
+  rng: &mut ThreadRng,
+) -> Vec<Box<dyn Obstacle>> {
+  // let mut rng = thread_rng();
   let offset_rnd = rng.gen_range(0..2);
   vec![Box::new(create_floating_platform(
     sprite_sheet,
@@ -58,6 +67,30 @@ pub fn platform_high(sprite_sheet: Rc<SpriteSheet>, offset_x: i16) -> Vec<Box<dy
       y: LOW_PLATFORM - 100 + offset_rnd * 50,
     },
   ))]
+}
+
+pub fn platform_double(
+  sprite_sheet: Rc<SpriteSheet>,
+  offset_x: i16,
+  rng: &mut ThreadRng,
+) -> Vec<Box<dyn Obstacle>> {
+  let offset_rnd = rng.gen_range(2..6);
+  vec![
+    Box::new(create_floating_platform(
+      sprite_sheet.clone(),
+      Point {
+        x: offset_x + OFFSET_X,
+        y: LOW_PLATFORM + 40,
+      },
+    )),
+    Box::new(create_floating_platform(
+      sprite_sheet,
+      Point {
+        x: offset_x + OFFSET_X + 200,
+        y: LOW_PLATFORM - offset_rnd * 50 + 20,
+      },
+    )),
+  ]
 }
 
 const FLOATING_PLATFORM_SPRITES: [&str; 3] = ["13.png", "14.png", "15.png"];
