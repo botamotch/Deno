@@ -110,11 +110,10 @@ impl Game for WalkTheDog {
         ));
 
         let mut rng = thread_rng();
+        //  stone_and_platform(stone.clone(), sprite_sheet.clone(), 600, &mut rng);
         let starting_obstacle =
-          stone_and_platform(stone.clone(), sprite_sheet.clone(), 600, &mut rng);
-        // let starting_obstacle = obstacle_stone(stone.clone(), 200);
+          platform_high(sprite_sheet.clone(), 600 + OBSTACLE_BUFFER, &mut rng);
         let timeline = rightmost(&starting_obstacle);
-        // log!("timeline : {}", timeline);
 
         let w = background.width() as i16;
         Ok(Box::new(WalkTheDog::Loaded(Walk {
@@ -162,7 +161,9 @@ impl Game for WalkTheDog {
       }
 
       if keystate.is_pressed("Space") {
-        walk.boy.jump();
+        walk.boy.squat();
+      } else {
+        walk.boy.short_jump();
       }
 
       walk.boy.update();
@@ -185,11 +186,6 @@ impl Game for WalkTheDog {
       });
 
       if walk.timeline < TIMELINE_MINIMUN {
-        log!(
-          "TIMELINE_MINIMUN : {} , timeline : {} ",
-          TIMELINE_MINIMUN,
-          walk.timeline
-        );
         walk.genereate_next_getment();
       } else {
         walk.timeline += velocity;
@@ -240,9 +236,18 @@ impl Obstacle for Platform {
       .iter()
       .find(|&bounding_box| boy.bounding_box().intersects(bounding_box))
     {
+      // TODO
+      // SQUATが終わった時に衝突判定に引っかかってJUMPできない
+      // 今までSQUATなしでJUMPしてた時はどうしてたんだっけ？
       if boy.velocity_y() > 0 && boy.pos_y() < self.position.y {
         boy.land_on(box_to_land_on.position.y);
       } else {
+        log!(
+          "platform y : {} , boy y : {}, velocity y : {}",
+          self.position.y,
+          boy.pos_y(),
+          boy.velocity_y()
+        );
         boy.knock_out();
       }
     }
@@ -324,6 +329,11 @@ impl Platform {
     }
   }
 
+  // fn is_land_on(&self, boy: &mut RedHatBoy) -> bool {
+  //   boy.pos().x < (self.position.x) && self.position.x < (boy.pos().x + boy.destination_box().width)
+  //   // true
+  // }
+
   pub fn bounding_boxes(&self) -> &Vec<Rect> {
     &self.bounding_boxes
   }
@@ -347,8 +357,10 @@ mod red_hat_boy {
   const FRAMES_SLIDING: u8 = 14;
   const FRAMES_JUMPING: u8 = 35;
   const FRAMES_FALLING: u8 = 29;
+  const FRAMES_SQUATING: u8 = 8;
   const RUNNING_SPEED: i16 = 5;
   const JUMP_SPEED: i16 = -25;
+  const SHORT_JUMP_SPEED: i16 = -20;
   const GRAVITY: i16 = 1;
   const PLAYER_HEIGHT: i16 = HEIGHT - FLOOR;
 
@@ -433,8 +445,16 @@ mod red_hat_boy {
       self.state = self.state.transition(Event::Slide);
     }
 
-    pub fn jump(&mut self) {
-      self.state = self.state.transition(Event::Jump);
+    // pub fn jump(&mut self) {
+    //   self.state = self.state.transition(Event::Jump);
+    // }
+
+    pub fn short_jump(&mut self) {
+      self.state = self.state.transition(Event::ShortJump);
+    }
+
+    pub fn squat(&mut self) {
+      self.state = self.state.transition(Event::Squat);
     }
 
     pub fn knock_out(&mut self) {
@@ -462,9 +482,11 @@ mod red_hat_boy {
     Run,
     Slide,
     Update,
-    Jump,
+    ShortJump,
+    // Jump,
     KnockOut,
     Land(i16),
+    Squat,
   }
 
   #[derive(Copy, Clone)]
@@ -475,6 +497,7 @@ mod red_hat_boy {
     Jumping(RedHatBoyState<Jumping>),
     Falling(RedHatBoyState<Falling>),
     KnockedOut(RedHatBoyState<KnockedOut>),
+    Squating(RedHatBoyState<Squating>),
   }
 
   impl RedHatBoyStateMachine {
@@ -483,7 +506,8 @@ mod red_hat_boy {
         // Transition
         (RedHatBoyStateMachine::Idle(state), Event::Run) => state.run().into(),
         (RedHatBoyStateMachine::Running(state), Event::Slide) => state.slide().into(),
-        (RedHatBoyStateMachine::Running(state), Event::Jump) => state.jump().into(),
+        // (RedHatBoyStateMachine::Running(state), Event::Jump) => state.jump().into(),
+        (RedHatBoyStateMachine::Running(state), Event::Squat) => state.squat().into(),
         (RedHatBoyStateMachine::Running(state), Event::KnockOut) => state.knock_out().into(),
         (RedHatBoyStateMachine::Jumping(state), Event::KnockOut) => state.knock_out().into(),
         (RedHatBoyStateMachine::Sliding(state), Event::KnockOut) => state.knock_out().into(),
@@ -496,12 +520,17 @@ mod red_hat_boy {
         (RedHatBoyStateMachine::Running(state), Event::Land(position)) => {
           state.land_on(position).into()
         }
+        (RedHatBoyStateMachine::Squating(state), Event::Land(position)) => {
+          state.land_on(position).into()
+        }
+        (RedHatBoyStateMachine::Squating(state), Event::ShortJump) => state.short_jump().into(),
         // Update
         (RedHatBoyStateMachine::Idle(state), Event::Update) => state.update().into(),
         (RedHatBoyStateMachine::Running(state), Event::Update) => state.update().into(),
         (RedHatBoyStateMachine::Sliding(state), Event::Update) => state.update().into(),
         (RedHatBoyStateMachine::Jumping(state), Event::Update) => state.update().into(),
         (RedHatBoyStateMachine::Falling(state), Event::Update) => state.update().into(),
+        (RedHatBoyStateMachine::Squating(state), Event::Update) => state.update().into(),
         (RedHatBoyStateMachine::KnockedOut(_), Event::Update) => self,
         _ => self,
       }
@@ -515,6 +544,7 @@ mod red_hat_boy {
         RedHatBoyStateMachine::Jumping(state) => state.frame_name(),
         RedHatBoyStateMachine::Falling(state) => state.frame_name(),
         RedHatBoyStateMachine::KnockedOut(state) => state.frame_name(),
+        RedHatBoyStateMachine::Squating(state) => state.frame_name(),
       }
     }
 
@@ -526,6 +556,7 @@ mod red_hat_boy {
         RedHatBoyStateMachine::Jumping(state) => &state.context(),
         RedHatBoyStateMachine::Falling(state) => &state.context(),
         RedHatBoyStateMachine::KnockedOut(state) => &state.context(),
+        RedHatBoyStateMachine::Squating(state) => &state.context(),
       }
     }
 
@@ -597,6 +628,21 @@ mod red_hat_boy {
     }
   }
 
+  impl From<RedHatBoyState<Squating>> for RedHatBoyStateMachine {
+    fn from(state: RedHatBoyState<Squating>) -> Self {
+      RedHatBoyStateMachine::Squating(state)
+    }
+  }
+
+  impl From<SquatingEndState> for RedHatBoyStateMachine {
+    fn from(end_state: SquatingEndState) -> Self {
+      match end_state {
+        SquatingEndState::Complete(state) => state.into(),
+        SquatingEndState::Squating(state) => state.into(),
+      }
+    }
+  }
+
   #[derive(Copy, Clone)]
   struct Idle;
 
@@ -614,6 +660,9 @@ mod red_hat_boy {
 
   #[derive(Copy, Clone)]
   struct KnockedOut;
+
+  #[derive(Copy, Clone)]
+  struct Squating;
 
   #[derive(Copy, Clone)]
   struct RedHatBoyState<S> {
@@ -645,7 +694,7 @@ mod red_hat_boy {
       } else {
         self.frame = 0;
       }
-      if self.position.y > FLOOR {
+      if self.position.y > FLOOR && self.velocity.y > 0 {
         self.velocity.y = 0;
         self.position.y = FLOOR;
       } else {
@@ -742,17 +791,24 @@ mod red_hat_boy {
       }
     }
 
-    pub fn jump(self) -> RedHatBoyState<Jumping> {
-      RedHatBoyState {
-        context: self.context.set_vertical_velocity(JUMP_SPEED).reset_frame(),
-        _state: Jumping {},
-      }
-    }
+    // pub fn jump(self) -> RedHatBoyState<Jumping> {
+    //   RedHatBoyState {
+    //     context: self.context.set_vertical_velocity(JUMP_SPEED).reset_frame(),
+    //     _state: Jumping {},
+    //   }
+    // }
 
     pub fn knock_out(self) -> RedHatBoyState<Falling> {
       RedHatBoyState {
         context: self.context.reset_frame().stop(),
         _state: Falling {},
+      }
+    }
+
+    pub fn squat(self) -> RedHatBoyState<Squating> {
+      RedHatBoyState {
+        context: self.context.reset_frame(),
+        _state: Squating {},
       }
     }
   }
@@ -825,7 +881,7 @@ mod red_hat_boy {
 
     pub fn update(mut self) -> JumpingEndState {
       self.update_context(FRAMES_JUMPING);
-      if self.context.position.y >= FLOOR {
+      if self.context.position.y >= FLOOR && self.context.velocity.y > 0 {
         JumpingEndState::Landing(self.land_on(HEIGHT.into()))
       } else {
         JumpingEndState::Jumping(self)
@@ -871,6 +927,54 @@ mod red_hat_boy {
   impl RedHatBoyState<KnockedOut> {
     fn frame_name(&self) -> &str {
       FRAME_NAME_FALLING
+    }
+  }
+
+  enum SquatingEndState {
+    Complete(RedHatBoyState<Jumping>),
+    Squating(RedHatBoyState<Squating>),
+  }
+
+  impl RedHatBoyState<Squating> {
+    fn frame_name(&self) -> &str {
+      FRAME_NAME_RUN
+    }
+
+    fn update(mut self) -> SquatingEndState {
+      self.update_context(FRAMES_RUN);
+
+      if self.context.frame >= FRAMES_SQUATING {
+        SquatingEndState::Complete(self.jump())
+      } else {
+        SquatingEndState::Squating(self)
+      }
+    }
+
+    pub fn jump(self) -> RedHatBoyState<Jumping> {
+      RedHatBoyState {
+        context: self.context.set_vertical_velocity(JUMP_SPEED).reset_frame(),
+        _state: Jumping {},
+      }
+    }
+
+    pub fn short_jump(self) -> RedHatBoyState<Jumping> {
+      RedHatBoyState {
+        context: self
+          .context
+          .set_vertical_velocity(SHORT_JUMP_SPEED)
+          .reset_frame(),
+        _state: Jumping {},
+      }
+    }
+
+    pub fn land_on(self, position: i16) -> RedHatBoyState<Squating> {
+      RedHatBoyState {
+        context: self
+          .context
+          .set_vertical_velocity(0)
+          .set_on(position as i16),
+        _state: Squating,
+      }
     }
   }
 }
