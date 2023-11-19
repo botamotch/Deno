@@ -359,8 +359,8 @@ mod red_hat_boy {
   const FRAMES_FALLING: u8 = 29;
   const FRAMES_SQUATING: u8 = 8;
   const RUNNING_SPEED: i16 = 5;
-  const JUMP_SPEED: i16 = -25;
-  const SHORT_JUMP_SPEED: i16 = -20;
+  const JUMP_SPEED: i16 = -28;
+  const SHORT_JUMP_SPEED: i16 = -22;
   const GRAVITY: i16 = 1;
   const PLAYER_HEIGHT: i16 = HEIGHT - FLOOR;
 
@@ -688,6 +688,7 @@ mod red_hat_boy {
   }
 
   impl RedHatBoyContext {
+    // TODO Stateに関係なく重力計算してたけど修正したほうがいいんじゃないか？
     pub fn update(mut self, frame_count: u8) -> Self {
       if self.frame < frame_count {
         self.frame += 1;
@@ -774,7 +775,7 @@ mod red_hat_boy {
       self
     }
 
-    pub fn land_on(self, position: i16) -> RedHatBoyState<Running> {
+    fn land_on(self, position: i16) -> RedHatBoyState<Running> {
       RedHatBoyState {
         context: self
           .context
@@ -784,7 +785,7 @@ mod red_hat_boy {
       }
     }
 
-    pub fn slide(self) -> RedHatBoyState<Sliding> {
+    fn slide(self) -> RedHatBoyState<Sliding> {
       RedHatBoyState {
         context: self.context.reset_frame(),
         _state: Sliding {},
@@ -798,14 +799,14 @@ mod red_hat_boy {
     //   }
     // }
 
-    pub fn knock_out(self) -> RedHatBoyState<Falling> {
+    fn knock_out(self) -> RedHatBoyState<Falling> {
       RedHatBoyState {
         context: self.context.reset_frame().stop(),
         _state: Falling {},
       }
     }
 
-    pub fn squat(self) -> RedHatBoyState<Squating> {
+    fn squat(self) -> RedHatBoyState<Squating> {
       RedHatBoyState {
         context: self.context.reset_frame(),
         _state: Squating {},
@@ -823,14 +824,14 @@ mod red_hat_boy {
       FRAME_NAME_SLIDING
     }
 
-    pub fn stand(self) -> RedHatBoyState<Running> {
+    fn stand(self) -> RedHatBoyState<Running> {
       RedHatBoyState {
         context: self.context.reset_frame(),
         _state: Running,
       }
     }
 
-    pub fn update(mut self) -> SlidingEndState {
+    fn update(mut self) -> SlidingEndState {
       self.update_context(FRAMES_SLIDING);
 
       if self.context.frame >= FRAMES_SLIDING {
@@ -840,14 +841,14 @@ mod red_hat_boy {
       }
     }
 
-    pub fn knock_out(self) -> RedHatBoyState<Falling> {
+    fn knock_out(self) -> RedHatBoyState<Falling> {
       RedHatBoyState {
         context: self.context.reset_frame().stop(),
         _state: Falling {},
       }
     }
 
-    pub fn land_on(self, position: i16) -> RedHatBoyState<Sliding> {
+    fn land_on(self, position: i16) -> RedHatBoyState<Sliding> {
       RedHatBoyState {
         context: self
           .context
@@ -868,7 +869,7 @@ mod red_hat_boy {
       FRAME_NAME_JUMPING
     }
 
-    pub fn land_on(self, position: i16) -> RedHatBoyState<Running> {
+    fn land_on(self, position: i16) -> RedHatBoyState<Running> {
       RedHatBoyState {
         context: self
           .context
@@ -879,7 +880,7 @@ mod red_hat_boy {
       }
     }
 
-    pub fn update(mut self) -> JumpingEndState {
+    fn update(mut self) -> JumpingEndState {
       self.update_context(FRAMES_JUMPING);
       if self.context.position.y >= FLOOR && self.context.velocity.y > 0 {
         JumpingEndState::Landing(self.land_on(HEIGHT.into()))
@@ -888,7 +889,7 @@ mod red_hat_boy {
       }
     }
 
-    pub fn knock_out(self) -> RedHatBoyState<Falling> {
+    fn knock_out(self) -> RedHatBoyState<Falling> {
       RedHatBoyState {
         context: self.context.reset_frame().stop(),
         _state: Falling {},
@@ -906,7 +907,7 @@ mod red_hat_boy {
       FRAME_NAME_FALLING
     }
 
-    pub fn update(mut self) -> FallingEndState {
+    fn update(mut self) -> FallingEndState {
       self.update_context(FRAMES_FALLING);
 
       if self.context.frame >= FRAMES_FALLING {
@@ -916,7 +917,7 @@ mod red_hat_boy {
       }
     }
 
-    pub fn dead(self) -> RedHatBoyState<KnockedOut> {
+    fn dead(self) -> RedHatBoyState<KnockedOut> {
       RedHatBoyState {
         context: self.context,
         _state: KnockedOut {},
@@ -950,14 +951,16 @@ mod red_hat_boy {
       }
     }
 
-    pub fn jump(self) -> RedHatBoyState<Jumping> {
+    fn jump(self) -> RedHatBoyState<Jumping> {
+      log!("high jump");
       RedHatBoyState {
         context: self.context.set_vertical_velocity(JUMP_SPEED).reset_frame(),
         _state: Jumping {},
       }
     }
 
-    pub fn short_jump(self) -> RedHatBoyState<Jumping> {
+    fn short_jump(self) -> RedHatBoyState<Jumping> {
+      log!("short jump");
       RedHatBoyState {
         context: self
           .context
@@ -967,7 +970,7 @@ mod red_hat_boy {
       }
     }
 
-    pub fn land_on(self, position: i16) -> RedHatBoyState<Squating> {
+    fn land_on(self, position: i16) -> RedHatBoyState<Squating> {
       RedHatBoyState {
         context: self
           .context
