@@ -10,13 +10,14 @@ use crate::browser;
 use crate::engine;
 use crate::engine::{Cell, Game, Image, KeyState, Point, Rect, Renderer, Sheet, SpriteSheet};
 use crate::segment::{
-  obstacle_stone, platform_double, platform_high, stone_and_platform, stone_on_platform,platform_triple
+  obstacle_stone, platform_above_stone, platform_double, platform_high, platform_stone_platform,
+  platform_triple, stone_and_platform, stone_on_platform,
 };
 
 use self::red_hat_boy::RedHatBoy;
 
 const TIMELINE_MINIMUN: i16 = 1600;
-const OBSTACLE_BUFFER: i16 = 30;
+const OBSTACLE_BUFFER: i16 = 20;
 
 pub enum WalkTheDog {
   Loading,
@@ -40,7 +41,7 @@ impl Walk {
 
   fn genereate_next_getment(&mut self) {
     // let mut rng = thread_rng();
-    let next_segment = self.rng.gen_range(0..6);
+    let next_segment = self.rng.gen_range(0..8);
 
     let mut next_obstacle = match next_segment {
       0 => stone_and_platform(
@@ -70,7 +71,20 @@ impl Walk {
         self.timeline + OBSTACLE_BUFFER,
         &mut self.rng,
       ),
-      _ => obstacle_stone(
+      5 => platform_above_stone(
+        self.stone.clone(),
+        self.obstacle_sheet.clone(),
+        self.timeline + OBSTACLE_BUFFER,
+        &mut self.rng,
+      ),
+      6 => platform_stone_platform(
+        self.stone.clone(),
+        self.obstacle_sheet.clone(),
+        self.timeline + OBSTACLE_BUFFER,
+        &mut self.rng,
+      ),
+      _ =>  obstacle_stone(
+        self.obstacle_sheet.clone(),
         self.stone.clone(),
         self.timeline + OBSTACLE_BUFFER,
         &mut self.rng,
@@ -363,8 +377,8 @@ mod red_hat_boy {
   const FRAMES_FALLING: u8 = 29;
   const FRAMES_SQUATING: u8 = 8;
   const RUNNING_SPEED: i16 = 5;
-  const JUMP_SPEED: i16 = -28;
-  const SHORT_JUMP_SPEED: i16 = -22;
+  const JUMP_SPEED: i16 = -27;
+  const SHORT_JUMP_SPEED: i16 = -21;
   const GRAVITY: i16 = 1;
   const PLAYER_HEIGHT: i16 = HEIGHT - FLOOR;
 
