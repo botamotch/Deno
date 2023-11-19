@@ -236,18 +236,9 @@ impl Obstacle for Platform {
       .iter()
       .find(|&bounding_box| boy.bounding_box().intersects(bounding_box))
     {
-      // TODO
-      // SQUATが終わった時に衝突判定に引っかかってJUMPできない
-      // 今までSQUATなしでJUMPしてた時はどうしてたんだっけ？
       if boy.velocity_y() > 0 && boy.pos_y() < self.position.y {
         boy.land_on(box_to_land_on.position.y);
       } else {
-        log!(
-          "platform y : {} , boy y : {}, velocity y : {}",
-          self.position.y,
-          boy.pos_y(),
-          boy.velocity_y()
-        );
         boy.knock_out();
       }
     }
@@ -506,24 +497,16 @@ mod red_hat_boy {
         // Transition
         (StateMachine::Idle(state), Event::Run) => state.run().into(),
         (StateMachine::Running(state), Event::Slide) => state.slide().into(),
-        // (RedHatBoyStateMachine::Running(state), Event::Jump) => state.jump().into(),
+        (StateMachine::Squating(state), Event::ShortJump) => state.short_jump().into(),
         (StateMachine::Running(state), Event::Squat) => state.squat().into(),
         (StateMachine::Running(state), Event::KnockOut) => state.knock_out().into(),
         (StateMachine::Jumping(state), Event::KnockOut) => state.knock_out().into(),
         (StateMachine::Sliding(state), Event::KnockOut) => state.knock_out().into(),
-        (StateMachine::Sliding(state), Event::Land(position)) => {
-          state.land_on(position).into()
-        }
-        (StateMachine::Jumping(state), Event::Land(position)) => {
-          state.land_on(position).into()
-        }
-        (StateMachine::Running(state), Event::Land(position)) => {
-          state.land_on(position).into()
-        }
-        (StateMachine::Squating(state), Event::Land(position)) => {
-          state.land_on(position).into()
-        }
-        (StateMachine::Squating(state), Event::ShortJump) => state.short_jump().into(),
+        // Land
+        (StateMachine::Sliding(state), Event::Land(position)) => state.land_on(position).into(),
+        (StateMachine::Jumping(state), Event::Land(position)) => state.land_on(position).into(),
+        (StateMachine::Running(state), Event::Land(position)) => state.land_on(position).into(),
+        (StateMachine::Squating(state), Event::Land(position)) => state.land_on(position).into(),
         // Update
         (StateMachine::Idle(state), Event::Update) => state.update().into(),
         (StateMachine::Running(state), Event::Update) => state.update().into(),
@@ -889,6 +872,8 @@ mod red_hat_boy {
     }
 
     fn update(mut self) -> SquatingEndState {
+      // Jumpする前にupdate_contextが実行されるので一旦落ちて衝突に引っかかる
+      // update_heightを実行することで解決
       self.update_context(FRAMES_RUN);
 
       if self.context.frame >= FRAMES_SQUATING {
@@ -899,15 +884,17 @@ mod red_hat_boy {
     }
 
     fn jump(self) -> State<Jumping> {
-      log!("high jump");
       State {
-        context: self.context.set_vertical_velocity(JUMP_SPEED).reset_frame(),
+        context: self
+          .context
+          .set_vertical_velocity(JUMP_SPEED)
+          .update_height()
+          .reset_frame(),
         _state: Jumping {},
       }
     }
 
     fn short_jump(self) -> State<Jumping> {
-      log!("short jump");
       State {
         context: self
           .context
@@ -936,7 +923,6 @@ mod red_hat_boy {
   }
 
   impl Context {
-    // TODO Stateに関係なく重力計算してたけど修正したほうがいいんじゃないか？
     pub fn update(mut self, frame_count: u8) -> Self {
       if self.frame < frame_count {
         self.frame += 1;
@@ -977,6 +963,12 @@ mod red_hat_boy {
     fn set_on(mut self, position: i16) -> Self {
       let position = position - PLAYER_HEIGHT;
       self.position.y = position;
+      self
+    }
+
+    fn update_height(mut self) -> Self {
+      self.position.y += self.velocity.y;
+      self.velocity.y += GRAVITY;
       self
     }
   }
