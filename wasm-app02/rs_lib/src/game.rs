@@ -9,7 +9,9 @@ use web_sys::HtmlImageElement;
 use crate::browser;
 use crate::engine;
 use crate::engine::{Cell, Game, Image, KeyState, Point, Rect, Renderer, Sheet, SpriteSheet};
-use crate::segment::{obstacle_stone, platform_double, platform_high, stone_and_platform};
+use crate::segment::{
+  obstacle_stone, platform_double, platform_high, stone_and_platform, stone_on_platform,platform_triple
+};
 
 use self::red_hat_boy::RedHatBoy;
 
@@ -38,7 +40,7 @@ impl Walk {
 
   fn genereate_next_getment(&mut self) {
     // let mut rng = thread_rng();
-    let next_segment = self.rng.gen_range(0..5);
+    let next_segment = self.rng.gen_range(0..6);
 
     let mut next_obstacle = match next_segment {
       0 => stone_and_platform(
@@ -53,6 +55,17 @@ impl Walk {
         &mut self.rng,
       ),
       2 => platform_double(
+        self.obstacle_sheet.clone(),
+        self.timeline + OBSTACLE_BUFFER,
+        &mut self.rng,
+      ),
+      3 => stone_on_platform(
+        self.stone.clone(),
+        self.obstacle_sheet.clone(),
+        self.timeline + OBSTACLE_BUFFER,
+        &mut self.rng,
+      ),
+      4 => platform_triple(
         self.obstacle_sheet.clone(),
         self.timeline + OBSTACLE_BUFFER,
         &mut self.rng,
