@@ -79,13 +79,13 @@ pub fn obstacle_stone(
         y: STONE_ON_GROUND,
       },
     ))),
-    Box::new(create_floating_platform(
-      sprite_sheet.clone(),
-      Point {
-        x: offset_x + OFFSET_X,
-        y: LOW_PLATFORM - 300,
-      },
-    )),
+    // Box::new(create_floating_platform(
+    //   sprite_sheet.clone(),
+    //   Point {
+    //     x: offset_x + OFFSET_X,
+    //     y: LOW_PLATFORM - 300,
+    //   },
+    // )),
     Box::new(create_floating_platform(
       sprite_sheet,
       Point {

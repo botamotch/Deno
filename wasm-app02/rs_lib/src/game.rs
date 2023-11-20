@@ -32,6 +32,7 @@ pub struct Walk {
   stone: HtmlImageElement,
   timeline: i16,
   rng: ThreadRng,
+  cleared_stage: u16,
 }
 
 impl Walk {
@@ -40,33 +41,34 @@ impl Walk {
   }
 
   fn genereate_next_getment(&mut self) {
-    // let mut rng = thread_rng();
-    let next_segment = self.rng.gen_range(0..8);
+    self.cleared_stage += 1;
+    let next_segment = if self.cleared_stage < 10 {
+      self.rng.gen_range(0..3)
+    } else if self.cleared_stage < 30 {
+      self.rng.gen_range(0..6)
+    } else {
+      self.rng.gen_range(0..8)
+    };
 
     let mut next_obstacle = match next_segment {
-      0 => stone_and_platform(
+      1 => stone_and_platform(
         self.stone.clone(),
         self.obstacle_sheet.clone(),
         self.timeline + OBSTACLE_BUFFER,
         &mut self.rng,
       ),
-      1 => platform_high(
+      2 => platform_high(
         self.obstacle_sheet.clone(),
         self.timeline + OBSTACLE_BUFFER,
         &mut self.rng,
       ),
-      2 => platform_double(
+      3 => platform_double(
         self.obstacle_sheet.clone(),
         self.timeline + OBSTACLE_BUFFER,
         &mut self.rng,
       ),
-      3 => stone_on_platform(
+      4 => stone_on_platform(
         self.stone.clone(),
-        self.obstacle_sheet.clone(),
-        self.timeline + OBSTACLE_BUFFER,
-        &mut self.rng,
-      ),
-      4 => platform_triple(
         self.obstacle_sheet.clone(),
         self.timeline + OBSTACLE_BUFFER,
         &mut self.rng,
@@ -77,13 +79,18 @@ impl Walk {
         self.timeline + OBSTACLE_BUFFER,
         &mut self.rng,
       ),
-      6 => platform_stone_platform(
+      6 => platform_triple(
+        self.obstacle_sheet.clone(),
+        self.timeline + OBSTACLE_BUFFER,
+        &mut self.rng,
+      ),
+      7 => platform_stone_platform(
         self.stone.clone(),
         self.obstacle_sheet.clone(),
         self.timeline + OBSTACLE_BUFFER,
         &mut self.rng,
       ),
-      _ =>  obstacle_stone(
+      _ => obstacle_stone(
         self.obstacle_sheet.clone(),
         self.stone.clone(),
         self.timeline + OBSTACLE_BUFFER,
@@ -154,6 +161,7 @@ impl Game for WalkTheDog {
           stone,
           timeline,
           rng,
+          cleared_stage: 0,
         })))
       }
       WalkTheDog::Loaded(_) => Err(anyhow!("Error: Game is already initilalized!")),
@@ -960,7 +968,9 @@ mod red_hat_boy {
         self.velocity.y = 0;
         self.position.y = FLOOR;
       } else {
-        self.velocity.y += GRAVITY;
+        if self.velocity.y < 15 {
+          self.velocity.y += GRAVITY;
+        }
         self.position.y += self.velocity.y;
       }
       self
