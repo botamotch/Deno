@@ -24,98 +24,10 @@ pub enum WalkTheDog {
   Loaded(Walk),
 }
 
-pub struct Walk {
-  boy: RedHatBoy,
-  backgrounds: [Image; 2],
-  obstacles: Vec<Box<dyn Obstacle>>,
-  obstacle_sheet: Rc<SpriteSheet>,
-  stone: HtmlImageElement,
-  timeline: i16,
-  rng: ThreadRng,
-  cleared_stage: u16,
-}
-
-impl Walk {
-  fn velocity(&self) -> i16 {
-    -self.boy.walking_speed()
-  }
-
-  fn genereate_next_getment(&mut self) {
-    self.cleared_stage += 1;
-    let next_segment = if self.cleared_stage < 10 {
-      self.rng.gen_range(0..3)
-    } else if self.cleared_stage < 30 {
-      self.rng.gen_range(0..6)
-    } else {
-      self.rng.gen_range(0..8)
-    };
-
-    let mut next_obstacle = match next_segment {
-      1 => stone_and_platform(
-        self.stone.clone(),
-        self.obstacle_sheet.clone(),
-        self.timeline + OBSTACLE_BUFFER,
-        &mut self.rng,
-      ),
-      2 => platform_high(
-        self.obstacle_sheet.clone(),
-        self.timeline + OBSTACLE_BUFFER,
-        &mut self.rng,
-      ),
-      3 => platform_double(
-        self.obstacle_sheet.clone(),
-        self.timeline + OBSTACLE_BUFFER,
-        &mut self.rng,
-      ),
-      4 => stone_on_platform(
-        self.stone.clone(),
-        self.obstacle_sheet.clone(),
-        self.timeline + OBSTACLE_BUFFER,
-        &mut self.rng,
-      ),
-      5 => platform_above_stone(
-        self.stone.clone(),
-        self.obstacle_sheet.clone(),
-        self.timeline + OBSTACLE_BUFFER,
-        &mut self.rng,
-      ),
-      6 => platform_triple(
-        self.obstacle_sheet.clone(),
-        self.timeline + OBSTACLE_BUFFER,
-        &mut self.rng,
-      ),
-      7 => platform_stone_platform(
-        self.stone.clone(),
-        self.obstacle_sheet.clone(),
-        self.timeline + OBSTACLE_BUFFER,
-        &mut self.rng,
-      ),
-      _ => obstacle_stone(
-        self.obstacle_sheet.clone(),
-        self.stone.clone(),
-        self.timeline + OBSTACLE_BUFFER,
-        &mut self.rng,
-      ),
-      // _ => vec![],
-    };
-
-    self.timeline = rightmost(&next_obstacle);
-    self.obstacles.append(&mut next_obstacle);
-  }
-}
-
 impl WalkTheDog {
   pub fn new() -> Self {
     WalkTheDog::Loading
   }
-}
-
-fn rightmost(obstacle_list: &Vec<Box<dyn Obstacle>>) -> i16 {
-  obstacle_list
-    .iter()
-    .map(|obstacle| obstacle.right())
-    .max_by(|x, y| x.cmp(&y))
-    .unwrap_or(0)
 }
 
 #[async_trait(?Send)]
@@ -227,6 +139,94 @@ impl Game for WalkTheDog {
       }
     }
   }
+}
+
+pub struct Walk {
+  boy: RedHatBoy,
+  backgrounds: [Image; 2],
+  obstacles: Vec<Box<dyn Obstacle>>,
+  obstacle_sheet: Rc<SpriteSheet>,
+  stone: HtmlImageElement,
+  timeline: i16,
+  rng: ThreadRng,
+  cleared_stage: u16,
+}
+
+impl Walk {
+  fn velocity(&self) -> i16 {
+    -self.boy.walking_speed()
+  }
+
+  fn genereate_next_getment(&mut self) {
+    self.cleared_stage += 1;
+    let next_segment = if self.cleared_stage < 10 {
+      self.rng.gen_range(0..3)
+    } else if self.cleared_stage < 30 {
+      self.rng.gen_range(0..6)
+    } else {
+      self.rng.gen_range(0..8)
+    };
+
+    let mut next_obstacle = match next_segment {
+      1 => stone_and_platform(
+        self.stone.clone(),
+        self.obstacle_sheet.clone(),
+        self.timeline + OBSTACLE_BUFFER,
+        &mut self.rng,
+      ),
+      2 => platform_high(
+        self.obstacle_sheet.clone(),
+        self.timeline + OBSTACLE_BUFFER,
+        &mut self.rng,
+      ),
+      3 => platform_double(
+        self.obstacle_sheet.clone(),
+        self.timeline + OBSTACLE_BUFFER,
+        &mut self.rng,
+      ),
+      4 => stone_on_platform(
+        self.stone.clone(),
+        self.obstacle_sheet.clone(),
+        self.timeline + OBSTACLE_BUFFER,
+        &mut self.rng,
+      ),
+      5 => platform_above_stone(
+        self.stone.clone(),
+        self.obstacle_sheet.clone(),
+        self.timeline + OBSTACLE_BUFFER,
+        &mut self.rng,
+      ),
+      6 => platform_triple(
+        self.obstacle_sheet.clone(),
+        self.timeline + OBSTACLE_BUFFER,
+        &mut self.rng,
+      ),
+      7 => platform_stone_platform(
+        self.stone.clone(),
+        self.obstacle_sheet.clone(),
+        self.timeline + OBSTACLE_BUFFER,
+        &mut self.rng,
+      ),
+      _ => obstacle_stone(
+        self.obstacle_sheet.clone(),
+        self.stone.clone(),
+        self.timeline + OBSTACLE_BUFFER,
+        &mut self.rng,
+      ),
+      // _ => vec![],
+    };
+
+    self.timeline = rightmost(&next_obstacle);
+    self.obstacles.append(&mut next_obstacle);
+  }
+}
+
+fn rightmost(obstacle_list: &Vec<Box<dyn Obstacle>>) -> i16 {
+  obstacle_list
+    .iter()
+    .map(|obstacle| obstacle.right())
+    .max_by(|x, y| x.cmp(&y))
+    .unwrap_or(0)
 }
 
 pub trait Obstacle {
