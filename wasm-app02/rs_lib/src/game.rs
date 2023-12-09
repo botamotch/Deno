@@ -1,6 +1,7 @@
 use anyhow::anyhow;
 use anyhow::Result;
 use async_trait::async_trait;
+use futures::channel::mpsc::UnboundedReceiver;
 use rand::prelude::*;
 use serde_wasm_bindgen::from_value;
 use std::rc::Rc;
@@ -42,12 +43,25 @@ struct WalkTheDogState<T> {
 
 struct Ready;
 struct Walking;
-struct GameOver;
+struct GameOver {
+  new_geme_event: UnboundedReceiver<()>,
+}
+
+impl GameOver {
+  fn new_game_pressed(&mut self) -> bool {
+    matches!(self.new_geme_event.try_next(), Ok(Some(())))
+  }
+}
 
 impl<T> WalkTheDogState<T> {
   fn draw(&self, renderer: &Renderer) {
     self.walk.draw(renderer);
   }
+}
+
+enum ReadyEndState {
+  Complete(WalkTheDogState<Walking>),
+  Continue(WalkTheDogState<Ready>),
 }
 
 impl WalkTheDogState<Ready> {
@@ -139,23 +153,40 @@ impl WalkTheDogState<Walking> {
   }
 
   fn end_game(self) -> WalkTheDogState<GameOver> {
-    browser::draw_ui("<button>New Game</button>");
+    let receiver = browser::draw_ui("<button id='new_game' >New Game</button>")
+      .and_then(|_unit| browser::find_html_element_by_id("new_game"))
+      .map(|element| engine::add_click_handler(element))
+      .unwrap();
     WalkTheDogState {
-      _state: GameOver,
+      _state: GameOver {
+        new_geme_event: receiver,
+      },
       walk: self.walk,
     }
   }
 }
 
-impl WalkTheDogState<GameOver> {
-  fn update(self) -> WalkTheDogState<GameOver> {
-    self
-  }
+enum GameOverEndState {
+  Complete(WalkTheDogState<Ready>),
+  Continue(WalkTheDogState<GameOver>),
 }
 
-enum ReadyEndState {
-  Complete(WalkTheDogState<Walking>),
-  Continue(WalkTheDogState<Ready>),
+impl WalkTheDogState<GameOver> {
+  fn update(mut self) -> GameOverEndState {
+    if self._state.new_game_pressed() {
+      GameOverEndState::Complete(self.new_game())
+    } else {
+      GameOverEndState::Continue(self)
+    }
+  }
+
+  fn new_game(self) -> WalkTheDogState<Ready> {
+    let _ = browser::hide_ui();
+    WalkTheDogState {
+      _state: Ready,
+      walk: Walk::reset(self.walk),
+    }
+  }
 }
 
 impl From<ReadyEndState> for WalkTheDogStateMachine {
@@ -163,6 +194,15 @@ impl From<ReadyEndState> for WalkTheDogStateMachine {
     match state {
       ReadyEndState::Complete(walking) => walking.into(),
       ReadyEndState::Continue(ready) => ready.into(),
+    }
+  }
+}
+
+impl From<GameOverEndState> for WalkTheDogStateMachine {
+  fn from(state: GameOverEndState) -> Self {
+    match state {
+      GameOverEndState::Continue(gameover) => gameover.into(),
+      GameOverEndState::Complete(ready) => ready.into(),
     }
   }
 }
@@ -294,6 +334,25 @@ pub struct Walk {
 }
 
 impl Walk {
+  fn reset(walk: Self) -> Self {
+    let mut rng = thread_rng();
+
+    let starting_obstacle =
+      platform_high(walk.obstacle_sheet.clone(), 600 + OBSTACLE_BUFFER, &mut rng);
+    let timeline = rightmost(&starting_obstacle);
+
+    Walk {
+      boy: RedHatBoy::reset(walk.boy),
+      backgrounds: walk.backgrounds,
+      obstacles: starting_obstacle,
+      obstacle_sheet: walk.obstacle_sheet,
+      stone: walk.stone,
+      timeline,
+      rng,
+      cleared_stage: 0,
+    }
+  }
+
   fn velocity(&self) -> i16 {
     -self.boy.walking_speed()
   }
@@ -558,6 +617,10 @@ mod red_hat_boy {
         sprite_sheet: sheet,
         image,
       }
+    }
+
+    pub fn reset(boy: Self) -> Self {
+      RedHatBoy::new(boy.sprite_sheet, boy.image)
     }
 
     fn frame_name(&self) -> String {
